@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayWalker - Reset</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 { color: #333; margin-bottom: 20px; }
+        p { color: #666; margin-bottom: 30px; line-height: 1.6; }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .status.info { background: #e0e7ff; color: #4c51bf; }
+        .status.success { background: #d1fae5; color: #065f46; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="font-size: 4rem; margin-bottom: 20px;">🔧</div>
+        <h1>WayWalker - Reset Tool</h1>
+        <p>Use esta ferramenta para limpar completamente todas as configurações e cache.</p>
+        
+        <div id="status" class="status info">
+            Status: Pronto para limpar
+        </div>
+        
+        <button class="btn btn-primary" onclick="clearEverything()">
+            🗑️ Limpar Tudo e Recarregar
+        </button>
+        
+        <button class="btn btn-secondary" onclick="goToApp()">
+            ➡️ Ir para WayWalker
+        </button>
+        
+        <div style="margin-top: 30px; font-size: 0.85rem; color: #999;">
+            <p><strong>O que isto faz:</strong></p>
+            <ul style="text-align: left; padding-left: 20px;">
+                <li>Limpa localStorage</li>
+                <li>Limpa sessionStorage</li>
+                <li>Remove service worker</li>
+                <li>Limpa cache do browser</li>
+                <li>Recarrega a página</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function clearEverything() {
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                statusDiv.textContent = '🔄 Limpando localStorage...';
+                localStorage.clear();
+                
+                statusDiv.textContent = '🔄 Limpando sessionStorage...';
+                sessionStorage.clear();
+                
+                statusDiv.textContent = '🔄 Removendo service workers...';
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                }
+                
+                statusDiv.textContent = '🔄 Limpando cache...';
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    await Promise.all(cacheNames.map(name => caches.delete(name)));
+                }
+                
+                statusDiv.className = 'status success';
+                statusDiv.textContent = '✅ Tudo limpo! Redirecionando em 2 segundos...';
+                
+                setTimeout(() => {
+                    window.location.href = './index.html?nocache=' + Date.now();
+                }, 2000);
+                
+            } catch (error) {
+                statusDiv.textContent = '❌ Erro: ' + error.message;
+                console.error(error);
+            }
+        }
+        
+        function goToApp() {
+            window.location.href = './index.html?t=' + Date.now();
+        }
+        
+        // Show current storage status
+        window.addEventListener('load', () => {
+            const hasData = localStorage.length > 0;
+            const statusDiv = document.getElementById('status');
+            
+            if (hasData) {
+                statusDiv.textContent = `⚠️ Encontrados ${localStorage.length} itens guardados. Clique para limpar.`;
+            } else {
+                statusDiv.textContent = '✅ Nenhum dado guardado. Pode ir para a app.';
+            }
+        });
+    </script>
+</body>
+</html>
