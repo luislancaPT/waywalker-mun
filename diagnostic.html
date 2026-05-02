@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <title>WayWalker Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        h1 { color: #333; margin-bottom: 20px; }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="font-size: 4rem;">🗺️</div>
+        <h1>WayWalker Diagnostic</h1>
+        
+        <div class="status" id="status">
+            <strong>Status:</strong> Carregando...
+        </div>
+        
+        <button class="btn" onclick="testLocalStorage()">
+            🧪 Testar localStorage
+        </button>
+        
+        <button class="btn" onclick="clearAll()">
+            🗑️ Limpar Tudo
+        </button>
+        
+        <button class="btn" onclick="goToApp()">
+            ➡️ Ir para WayWalker
+        </button>
+    </div>
+
+    <script>
+        window.addEventListener('load', () => {
+            const status = document.getElementById('status');
+            let info = '';
+            
+            // Check localStorage
+            try {
+                info += `✅ localStorage: ${localStorage.length} items\n`;
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    info += `  - ${key}\n`;
+                }
+            } catch (e) {
+                info += `❌ localStorage error: ${e.message}\n`;
+            }
+            
+            // Check sessionStorage
+            try {
+                info += `\n✅ sessionStorage: ${sessionStorage.length} items\n`;
+            } catch (e) {
+                info += `\n❌ sessionStorage error: ${e.message}\n`;
+            }
+            
+            // Check service workers
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(regs => {
+                    info += `\n✅ Service Workers: ${regs.length}\n`;
+                    status.textContent = info;
+                });
+            } else {
+                info += `\n⚠️ Service Workers: Not supported\n`;
+                status.textContent = info;
+            }
+        });
+        
+        function testLocalStorage() {
+            try {
+                localStorage.setItem('test', 'working');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                alert('✅ localStorage funciona!\nValor teste: ' + value);
+            } catch (e) {
+                alert('❌ Erro: ' + e.message);
+            }
+        }
+        
+        async function clearAll() {
+            try {
+                // Clear storage
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Unregister service workers
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (let reg of regs) {
+                        await reg.unregister();
+                    }
+                }
+                
+                // Clear caches
+                if ('caches' in window) {
+                    const names = await caches.keys();
+                    await Promise.all(names.map(name => caches.delete(name)));
+                }
+                
+                alert('✅ Tudo limpo!');
+                location.reload();
+            } catch (e) {
+                alert('❌ Erro: ' + e.message);
+            }
+        }
+        
+        function goToApp() {
+            window.location.href = './index.html?t=' + Date.now();
+        }
+    </script>
+</body>
+</html>

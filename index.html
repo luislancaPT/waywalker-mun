@@ -913,9 +913,18 @@
         // MAIN APP COMPONENT
         // ========================================
         function WayWalkerApp() {
+            console.log('🚀 WayWalkerApp mounting...');
+            
             // Always start at login - no configuration check
-            const [step, setStep] = useState('login');
-            const [language, setLanguage] = useState(localStorage.getItem('waywalker_language') || 'pt');
+            const [step, setStep] = useState(() => {
+                console.log('📍 Initializing step state...');
+                return 'login';
+            });
+            const [language, setLanguage] = useState(() => {
+                const lang = localStorage.getItem('waywalker_language') || 'pt';
+                console.log('🌍 Language:', lang);
+                return lang;
+            });
             const [user, setUser] = useState(null);
             const [config, setConfig] = useState(null);
             const [recording, setRecording] = useState(null);
@@ -925,23 +934,30 @@
             const t = (key) => TRANSLATIONS[language][key] || key;
 
             useEffect(() => {
+                console.log('💾 Saving language to localStorage:', language);
                 localStorage.setItem('waywalker_language', language);
             }, [language]);
+            
+            useEffect(() => {
+                console.log('✅ WayWalkerApp mounted! Current step:', step);
+            }, []);
 
             const handleLanguageChange = (e) => {
                 setLanguage(e.target.value);
             };
             
             const handleSettingsSave = () => {
-                // Reload to apply new settings
+                console.log('💾 Settings saved, reloading...');
                 window.location.reload();
             };
             
             const handleOpenSettings = () => {
+                console.log('⚙️ Opening settings...');
                 setStep('settings');
             };
 
             const handleLogin = (userData) => {
+                console.log('👤 User logged in:', userData);
                 setUser(userData);
                 setStep('setup');
             };
@@ -1193,8 +1209,10 @@
             const handleResetSettings = () => {
                 if (confirm('Resetar todas as configurações? Terá que inserir as API keys novamente.')) {
                     localStorage.clear();
-                    alert('Configurações limpas! A recarregar...');
-                    window.location.reload();
+                    sessionStorage.clear();
+                    
+                    // Don't auto-reload - just show message
+                    alert('✅ Configurações limpas!\n\nFeche esta aba completamente e abra o WayWalker novamente.');
                 }
             };
 
