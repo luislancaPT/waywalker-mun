@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>WayWalker v2.0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        h1 { font-size: 2rem; margin-bottom: 5px; }
+        .subtitle { opacity: 0.9; font-size: 0.9rem; }
+        
+        .content { padding: 30px; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .profile-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .profile-card-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .profile-card-emoji {
+            font-size: 4rem;
+            line-height: 1;
+        }
+        
+        .profile-card-title h2 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.3rem;
+        }
+        
+        .profile-card-section {
+            margin-bottom: 25px;
+        }
+        
+        .profile-card-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .profile-card-section p {
+            color: #555;
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: #e0d4f7;
+            color: #764ba2;
+        }
+        
+        .video-preview {
+            width: 100%;
+            max-height: 400px;
+            background: #000;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .transcription-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .manifesto {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+        
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metadata-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .metadata-item strong {
+            display: block;
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.5rem; }
+            .profile-card-header { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <select class="language-selector" id="langSelector" onchange="changeLanguage()">
+                <option value="pt">🇵🇹 PT</option>
+                <option value="en">🇬🇧 EN</option>
+                <option value="es">🇪🇸 ES</option>
+            </select>
+            <h1 id="appName">WayWalker</h1>
+            <p class="subtitle" id="appSubtitle">Empathy Wayfinding Tracker</p>
+        </div>
+
+        <!-- SCREEN 1: Login -->
+        <div id="screen-login" class="screen active">
+            <div class="content">
+                <div style="text-align: center; padding: 40px 0;">
+                    <div style="font-size: 5rem; margin-bottom: 20px;">🗺️</div>
+                    <h2 style="margin-bottom: 10px;">WayWalker v2.0</h2>
+                    <p style="color: #666;" id="demoMode">Modo Demo - Teste sem API</p>
+                    <button class="btn btn-primary" onclick="startDemo()">
+                        <span id="btnStart">▶️ Iniciar (Modo Demo)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: Setup -->
+        <div id="screen-setup" class="screen">
+            <div class="content">
+                <h2 style="margin-bottom: 20px;" id="titleSetup">Nova Análise</h2>
+                
+                <label id="labelProfile">Perfil de Empatia</label>
+                <select id="profile"></select>
+
+                <label id="labelSpaceType">Tipologia de Espaço</label>
+                <select id="spacetype">
+                    <option value="">Selecione...</option>
+                    <option value="hospital">Hospital / Centro de salud</option>
+                    <option value="campus">Campus universitário</option>
+                    <option value="transport">Estação de transporte</option>
+                    <option value="mall">Centro comercial</option>
+                    <option value="public">Espaço público (praça, parque)</option>
+                    <option value="admin">Edificio administrativo</option>
+                    <option value="museum">Museo / Centro cultural</option>
+                    <option value="residential">Barrio residencial</option>
+                    <option value="natural">Espaço natural</option>
+                    <option value="historic">Edificio histórico</option>
+                    <option value="airport">Aeroporto</option>
+                    <option value="other">Outro</option>
+                </select>
+
+                <label id="labelSpaceName">Nome do Espaço</label>
+                <input type="text" id="spacename" placeholder="Ex: Estação Rossio">
+
+                <label id="labelLocation">Localização</label>
+                <input type="text" id="location" placeholder="Ex: Lisboa, Portugal">
+
+                <label id="labelNarrationLang">Língua da Narração</label>
+                <select id="narrationlang">
+                    <option value="pt-PT">Português</option>
+                    <option value="en-US">English</option>
+                    <option value="es-ES">Español</option>
+                </select>
+
+                <button class="btn btn-primary" onclick="viewProfileCard()">
+                    <span id="btnViewProfile">Ver Ficha do Perfil →</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: Profile Card -->
+        <div id="screen-profilecard" class="screen">
+            <div class="content">
+                <h2 style="margin-bottom: 20px;" id="titleProfileCard">Ficha de Perfil de Empatia</h2>
+                
+                <div id="profileCardContent" class="profile-card">
+                    <!-- Will be populated dynamically -->
+                </div>
+
+                <button class="btn btn-primary" onclick="startRecording()">
+                    <span id="btnUnderstood">✓ Li e Compreendi — Iniciar Gravação</span>
+                </button>
+                
+                <button class="btn btn-secondary" onclick="showScreen('screen-setup')">
+                    <span id="btnBack">← Voltar à Configuração</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: Recording -->
+        <div id="screen-recording" class="screen">
+            <div class="content">
+                <h2 style="margin-bottom: 20px;">
+                    <span id="titleRecording">🔴 Gravando...</span>
+                </h2>
+                <p id="instructionRecord">Narre em voz alta o que observa no espaço.</p>
+                
+                <video id="videoPreview" class="video-preview" autoplay muted playsinline></video>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="value" id="timer">0:00</div>
+                        <div class="label" id="labelDuration">Duração</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="gpsCount">0</div>
+                        <div class="label" id="labelGPS">pontos GPS</div>
+                    </div>
+                </div>
+
+                <div id="transcriptionPreview" class="transcription-box" style="display: none;">
+                    <strong>🎤 Transcrição:</strong>
+                    <p id="transcriptionText"></p>
+                </div>
+
+                <button class="btn btn-primary" onclick="stopRecording()">
+                    <span id="btnStop">⏹️ Parar Gravação</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 5: Success -->
+        <div id="screen-success" class="screen">
+            <div class="content">
+                <div style="text-align: center; padding: 40px 0;">
+                    <div style="font-size: 5rem; margin-bottom: 20px;">✅</div>
+                    <h2 style="margin-bottom: 10px;" id="titleSuccess">Análise Completa!</h2>
+                    <p style="color: #666; margin-bottom: 30px;" id="msgSuccess">
+                        Gravação salva com sucesso.
+                    </p>
+                    
+                    <div id="manifestoPreview" class="manifesto">
+                        <!-- Manifesto content -->
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="exportJSON()">
+                        <span id="btnExport">💾 Exportar JSON</span>
+                    </button>
+                    
+                    <button class="btn btn-primary" onclick="newAnalysis()">
+                        <span id="btnNew">➕ Nova Análise</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TRANSLATIONS
+        const TRANSLATIONS = {
+            pt: {
+                appName: "WayWalker",
+                appSubtitle: "Empathy Wayfinding Tracker",
+                demoMode: "Modo Demo - Teste sem API",
+                btnStart: "▶️ Iniciar (Modo Demo)",
+                titleSetup: "Nova Análise",
+                labelProfile: "Perfil de Empatia",
+                labelSpaceType: "Tipologia de Espaço",
+                labelSpaceName: "Nome do Espaço",
+                labelLocation: "Localização",
+                labelNarrationLang: "Língua da Narração",
+                btnViewProfile: "Ver Ficha do Perfil →",
+                titleProfileCard: "Ficha de Perfil de Empatia",
+                howPerceives: "Como percebe o espaço?",
+                whereFails: "Onde falla mais o wayfinding?",
+                whatToObserve: "O que observar especialmente",
+                btnUnderstood: "✓ Li e Compreendi — Iniciar Gravação",
+                btnBack: "← Voltar à Configuração",
+                titleRecording: "🔴 Gravando...",
+                instructionRecord: "Narre em voz alta o que observa no espaço.",
+                labelDuration: "Duração",
+                labelGPS: "pontos GPS",
+                btnStop: "⏹️ Parar Gravação",
+                titleSuccess: "Análise Completa!",
+                msgSuccess: "Gravação salva com sucesso.",
+                btnExport: "💾 Exportar JSON",
+                btnNew: "➕ Nova Análise"
+            },
+            en: {
+                appName: "WayWalker",
+                appSubtitle: "Empathy Wayfinding Tracker",
+                demoMode: "Demo Mode - Test without API",
+                btnStart: "▶️ Start (Demo Mode)",
+                titleSetup: "New Analysis",
+                labelProfile: "Empathy Profile",
+                labelSpaceType: "Space Typology",
+                labelSpaceName: "Space Name",
+                labelLocation: "Location",
+                labelNarrationLang: "Narration Language",
+                btnViewProfile: "View Profile Card →",
+                titleProfileCard: "Empathy Profile Card",
+                howPerceives: "How does this profile perceive space?",
+                whereFails: "Where does wayfinding fail most?",
+                whatToObserve: "What to observe especially",
+                btnUnderstood: "✓ I Read and Understood — Start Recording",
+                btnBack: "← Back to Setup",
+                titleRecording: "🔴 Recording...",
+                instructionRecord: "Narrate aloud what you observe in the space.",
+                labelDuration: "Duration",
+                labelGPS: "GPS points",
+                btnStop: "⏹️ Stop Recording",
+                titleSuccess: "Analysis Complete!",
+                msgSuccess: "Recording saved successfully.",
+                btnExport: "💾 Export JSON",
+                btnNew: "➕ New Analysis"
+            },
+            es: {
+                appName: "WayWalker",
+                appSubtitle: "Empathy Wayfinding Tracker",
+                demoMode: "Modo Demo - Prueba sin API",
+                btnStart: "▶️ Iniciar (Modo Demo)",
+                titleSetup: "Nuevo Análisis",
+                labelProfile: "Perfil de Empatía",
+                labelSpaceType: "Tipología de Espacio",
+                labelSpaceName: "Nombre del Espacio",
+                labelLocation: "Localización",
+                labelNarrationLang: "Lengua de la Narración",
+                btnViewProfile: "Ver Ficha del Perfil →",
+                titleProfileCard: "Ficha de Perfil de Empatía",
+                howPerceives: "¿Cómo percibe el espacio?",
+                whereFails: "¿Dónde falla más el wayfinding?",
+                whatToObserve: "Qué observar especialmente",
+                btnUnderstood: "✓ Leí y Comprendí — Iniciar Grabación",
+                btnBack: "← Volver a Configuración",
+                titleRecording: "🔴 Grabando...",
+                instructionRecord: "Narre en voz alta lo que observa en el espacio.",
+                labelDuration: "Duración",
+                labelGPS: "puntos GPS",
+                btnStop: "⏹️ Detener Grabación",
+                titleSuccess: "¡Análisis Completo!",
+                msgSuccess: "Grabación guardada con éxito.",
+                btnExport: "💾 Exportar JSON",
+                btnNew: "➕ Nuevo Análisis"
+            }
+        };
+
+        // 30 EMPATHY PROFILES
+        const PROFILES = [
+            {id: 1, emoji: "🧓", name: "Adulto mayor con movilidad reducida (bastón, 72 años)", howPerceives: "Velocidade reducida. Horizonte visual mais baixo (~1,3 m). Maior tempo de processamento. O cansaço acumula erros de orientação.", whereFails: "Superfícies irregulares, mudanças de nível não sinalizadas, hitos colocados a mais de 1,8 m de altura.", whatToObserve: "Legibilidade de hitos a 1,2–1,5 m de altura. Uniformidade do pavimento. Zonas de descanso."},
+            {id: 2, emoji: "👶", name: "Niño de 4 años recorriendo solo por primera vez", howPerceives: "Horizonte visual a 80–100 cm. Percepção dominada por cores, formas grandes. Não lê sinais escritos.", whereFails: "Sinalização a mais de 1,2 m. Entornos monótonos sem hitos chamataivos.", whatToObserve: "Disponibilidade de hitos a altura infantil (carteis, cores, figuras)."},
+            {id: 3, emoji: "🦯", name: "Persona ciega con bastón blanco (ceguera total)", howPerceives: "Navegação táctil (pavimento, bordes, texturas) e auditiva (eco, tráfego). Constrói mapas mentais por sequência de pontos de decisão.", whereFails: "Pavimento uniforme sem guias tácteis. Obstáculos suspensos (marquises, ramos). Mudanças de nível sem aviso táctil.", whatToObserve: "Continuidade de guias podotácteis. Diferenciação de texturas. Elementos sonoros localizáveis."},
+            {id: 4, emoji: "🧏", name: "Persona sorda (sordera profunda, lengua de señas)", howPerceives: "Dependência total de informação visual. Dificuldade para captar avisos sonoros. Pode não se dar conta de veículos que se aproximam.", whereFails: "Sistemas de alerta só auditivos. Indicações dadas exclusivamente por megafonia.", whatToObserve: "Redundância visual de avisos sonoros. Presença de painéis informativos atualizados."},
+            {id: 5, emoji: "🧑‍🦽", name: "Usuario de silla de ruedas manual (paraplejia, 34 años)", howPerceives: "Horizonte visual a ~1,2 m. Necessita avaliar pendentes, largura de passos, qualidade de pavimento.", whereFails: "Rampas com pendente >8%. Portas de largura <90 cm. Pavimentos com baches.", whatToObserve: "Acessibilidade de rotas alternativas. Presença de rampas bem sinalizadas. Pavimento liso."},
+            {id: 6, emoji: "🤰", name: "Mujer embarazada en tercer trimestre (36 semanas)", howPerceives: "Campo visual inferior parcialmente obstruído. Equilíbrio alterado. Necessidade frequente de casas de banho.", whereFails: "Escadas sem corrimões. Desníveis não sinalizados. Percursos longos sem zonas de descanso.", whatToObserve: "Disponibilidade de assentos de descanso. Sinalização de casas de banho."},
+            {id: 7, emoji: "👨‍🦯", name: "Persona con baja visión (visión túnel, retinosis pigmentaria)", howPerceives: "Visão central preservada, perda de visão periférica. Dificuldade para detectar obstáculos laterais.", whereFails: "Pasillos com obstáculos laterais (colunas, mobiliário). Sinalização em zonas de penumbra.", whatToObserve: "Contraste cromático entre chão-parede-mobiliário. Iluminação uniforme."},
+            {id: 8, emoji: "🧑‍🦼", name: "Usuario de silla de ruedas eléctrica (tetraplejia C5-C6, 28 años)", howPerceives: "Horizonte visual a 1,1 m. Mobilidade limitada de cabeça e braços. Controle fino reduzido.", whereFails: "Botoneras a mais de 1,2 m. Portas manuais. Pavimentos irregulares.", whatToObserve: "Altura de controlos (botões, manijas). Qualidade extrema do pavimento."},
+            {id: 9, emoji: "🧑‍🍼", name: "Padre con cochecito de bebé (gemelos, 8 meses)", howPerceives: "Necessita rotas sem degraus. Carrinho duplo requer >80 cm de largura. Atenção dividida.", whereFails: "Corredores estreitos (<90 cm). Escadas como única opção.", whatToObserve: "Acesso a rampas ou elevadores. Largura mínima de passos."},
+            {id: 10, emoji: "🧑‍💼", name: "Persona con maleta grande (viajero en aeropuerto/estación)", howPerceives: "Carga pesada limita velocidade e agilidade. Necessita avaliar se a bagagem passa por espaços estreitos.", whereFails: "Escadas mecânicas demasiado rápidas. Torniquetes estreitos.", whatToObserve: "Disponibilidade de elevadores bem sinalizados. Rampas com pendente suave."},
+            {id: 11, emoji: "🎧", name: "Persona con autismo nivel 1 (antes Asperger, 22 años)", howPerceives: "Hipersensibilidade sensorial (ruído, luzes, multidões). Preferência por rotinas previsíveis.", whereFails: "Sinalização ambígua. Entornos com excesso de estímulos. Mudanças inesperadas.", whatToObserve: "Clareza e simplicidade de sinais. Coerência no design. Zonas de descompressão sensorial."},
+            {id: 12, emoji: "🧑‍🦳", name: "Adulto mayor con demencia leve (Alzheimer inicial, 68 años)", howPerceives: "Memória a curto prazo afetada. Desorientação temporal e espacial. Ansiedade ante entornos novos.", whereFails: "Entornos sem hitos visuais distintivos. Corredores longos e monótonos.", whatToObserve: "Hitos memoráveis e diferenciados (cores, objetos, murais). Simplicidade do traçado."},
+            {id: 13, emoji: "🧑‍🎤", name: "Persona con TDAH adulto (32 años, sin medicación)", howPerceives: "Atenção facilmente distraída por estímulos irrelevantes. Impulsividade em decisões de navegação.", whereFails: "Sinalização pouco chamativa. Entornos com excesso de distratores visuais.", whatToObserve: "Sinais visualmente chamativas (cores fortes, tamanho grande). Repetição de informação."},
+            {id: 14, emoji: "🤕", name: "Persona con lesión cerebral traumática reciente (recuperación, 6 meses post-accidente)", howPerceives: "Lentidão em processamento de informação. Fadiga cognitiva rápida. Memória de trabalho limitada.", whereFails: "Informação complexa apresentada rapidamente. Entornos com excesso de sinais.", whatToObserve: "Simplicidade de sinalização (uma instrução por cartaz). Zonas de descanso."},
+            {id: 15, emoji: "🎒", name: "Estudiante extranjero (18 años, primer día en ciudad nueva, nivel básico del idioma local)", howPerceives: "Dependência de sinalização pictográfica. Dificuldade para pedir ajuda verbalmente. Ansiedade ante o desconhecido.", whereFails: "Sinalização só em idioma local sem ícones. Falta de wifi público.", whatToObserve: "Presença de pictogramas internacionais. Disponibilidade de mapas visuais."},
+            {id: 16, emoji: "🧑‍🔧", name: "Trabajador de construcción con equipo pesado (casco, botas, chaleco, 45 años)", howPerceives: "Mobilidade reduzida por equipo. Campo visual limitado por capacete. Ruído ambiental dificulta ouvir.", whereFails: "Sinais pequenos ao nível do chão. Informação só verbal. Rotas que requerem agilidade.", whatToObserve: "Sinais grandes e elevados. Informação visual redundante. Pavimentos antideslizantes."},
+            {id: 17, emoji: "🏃", name: "Corredor urbano habitual (26 años, conoce poco la zona, corriendo de noche)", howPerceives: "Velocidade alta (~10 km/h). Atenção dividida entre rota e segurança. Evita deter-se a ler sinais.", whereFails: "Sinais que requerem parar para ler. Desníveis não iluminados. Cruzes sem marcas claras.", whatToObserve: "Iluminação adequada do percurso. Sinalização legível à distância e em movimento."},
+            {id: 18, emoji: "👨‍👩‍👧‍👦", name: "Familia con 3 niños pequeños (2, 5 y 7 años) en visita turística", howPerceives: "Atenção do adulto muito dividida. Crianças com diferentes ritmos de marcha. Prioridade em segurança.", whereFails: "Rotas longas sem descansos. Cruzes perigosos. Falta de casas de banho.", whatToObserve: "Zonas de descanso com sombra/assentos. Casas de banho públicas sinalizadas."},
+            {id: 19, emoji: "🧑‍🦲", name: "Persona en tratamiento de quimioterapia (52 años, fase activa)", howPerceives: "Fadiga extrema. Sistema imune debilitado (evita aglomerações). Náuseas ocasionais.", whereFails: "Percursos longos sem descansos. Falta de casas de banho acessíveis. Zonas sem ventilação.", whatToObserve: "Proximidade de casas de banho. Zonas de descanso frequentes. Ventilação adequada."},
+            {id: 20, emoji: "🧑‍🎓", name: "Estudiante con dislexia severa (20 años, universitario)", howPerceives: "Dificuldade para ler rapidamente. Inversão de letras e números. Preferência por informação visual/pictográfica.", whereFails: "Sinalização exclusivamente textual. Letras pequenas ou com baixo contraste.", whatToObserve: "Uso de pictogramas junto a texto. Tipografia sans-serif, grande (>4 cm). Alto contraste."},
+            {id: 21, emoji: "🧑‍💻", name: "Persona con ansiedad social (28 años, evita multitudes)", howPerceives: "Hipervigilância do entorno social. Evita contacto visual. Prefere rotas menos concorridas.", whereFails: "Rotas que forçam passo por zonas muito concorridas. Falta de rotas alternativas.", whatToObserve: "Disponibilidade de rotas alternativas menos transitadas. Visibilidade de saídas."},
+            {id: 22, emoji: "🧑‍🌾", name: "Trabajador agrícola (primeira visita a cidade grande, 55 años, poco escolarizado)", howPerceives: "Pouca familiaridade com códigos urbanos. Não usa tecnologia digital. Preferência por perguntar a pessoas.", whereFails: "Sinalização com iconografia urbana não óbvia. Falta de mapas simplificados.", whatToObserve: "Simplicidade extrema de sinais. Uso de pictogramas universais."},
+            {id: 23, emoji: "🦮", name: "Persona ciega con perro guía (ceguera parcial, 38 años)", howPerceives: "Confiança no cão para obstáculos e cruzes. Necessita espaço para o animal. Utiliza comandos verbais.", whereFails: "Espaços que não permitem animais sem sinalização clara. Superfícies sujas ou molhadas.", whatToObserve: "Sinalização de espaços pet-friendly. Limpeza de pavimentos. Espaços amplos."},
+            {id: 24, emoji: "🧑‍🍳", name: "Trabajador de turno nocturno (chef, 42 años, saliendo de 12h de trabajo)", howPerceives: "Fadiga cognitiva severa. Atenção reduzida. Visão adaptada a luz artificial. Ansiedade por chegar a casa.", whereFails: "Sinalização que requer processamento complexo. Rotas longas ou confusas.", whatToObserve: "Sinalização muito simples e direta. Iluminação constante."},
+            {id: 25, emoji: "🧑‍🚒", name: "Bombero en servicio de emergencia (32 años, primera vez en el edificio)", howPerceives: "Pressa extrema. Equipo pesado (30 kg). Necessita encontrar rotas rápidas a destino e saídas de emergência.", whereFails: "Sinalização de emergência pouco visível. Rotas de evacuação não claras.", whatToObserve: "Visibilidade de sinais de emergência (luminosas/refletantes). Clareza de mapas."},
+            {id: 26, emoji: "🧑‍⚕️", name: "Enfermera de urgencias (48 años, cambio de turno, cansancio extremo)", howPerceives: "Esgotamento físico e mental (turno de 16h). Automatismos de navegação. Pouca atenção a sinais.", whereFails: "Mudanças em rotas habituais não sinalizados. Rotas longas sem descansos.", whatToObserve: "Consistência em sinalização de rotas habituais. Avisos claros de mudanças."},
+            {id: 27, emoji: "🧑‍🦯", name: "Persona con síndrome de Usher (sordera + pérdida visual progresiva, 30 años)", howPerceives: "Perda combinada auditiva e visual. Comunicação por tacto ou língua de sinais de perto. Dependência de guias tácteis.", whereFails: "Ausência total de guias tácteis. Sinalização só visual ou só auditiva.", whatToObserve: "Guias podotácteis contínuas. Informação táctil (braille, relevo)."},
+            {id: 28, emoji: "🧑‍🦽", name: "Atleta paralímpico en silla de ruedas deportiva (24 años, entrenamiento)", howPerceives: "Alta velocidade em cadeira desportiva. Horizonte visual baixo. Necessita rotas lisas e amplas.", whereFails: "Pavimentos irregulares. Corredores estreitos. Desníveis bruscos.", whatToObserve: "Qualidade do pavimento (liso, sem juntas). Largura de passos (>120 cm)."},
+            {id: 29, emoji: "🧑‍🎨", name: "Artista con sinestesia (percibe colores al oír sonidos, 29 años)", howPerceives: "Sobrecarga sensorial em entornos ruidosos. Os sons geram perceções visuais adicionais.", whereFails: "Espaços com ruído caótico. Falta de zonas silenciosas.", whatToObserve: "Zonas de silêncio sinalizadas. Controlo de contaminação acústica."},
+            {id: 30, emoji: "🧑‍🔬", name: "Científico con prosopagnosia (no reconoce caras, 45 años)", howPerceives: "Não reconhece pessoas por rosto. Usa contexto, voz, roupa. Dificuldade em lugares onde identificação de pessoal é por foto.", whereFails: "Identificação de pessoal só por foto. Falta de distintivos claros (uniformes, chapas).", whatToObserve: "Uso de uniformes distintivos por cor/forma. Chapas com nomes grandes."}
+        ];
+
+        // STATE
+        let currentLanguage = 'pt';
+        let currentConfig = {};
+        let currentRecording = {
+            videoBlob: null,
+            gpsPoints: [],
+            transcription: '',
+            duration: 0
+        };
+        let mediaRecorder = null;
+        let stream = null;
+        let timerInterval = null;
+        let gpsInterval = null;
+        let recognition = null;
+
+        // INITIALIZATION
+        window.addEventListener('load', () => {
+            console.log('✅ WayWalker Full loaded');
+            populateProfiles();
+            loadLanguage();
+        });
+
+        function loadLanguage() {
+            const saved = localStorage.getItem('waywalker_language');
+            if (saved && TRANSLATIONS[saved]) {
+                currentLanguage = saved;
+                document.getElementById('langSelector').value = saved;
+            }
+            updateUI();
+        }
+
+        function changeLanguage() {
+            currentLanguage = document.getElementById('langSelector').value;
+            localStorage.setItem('waywalker_language', currentLanguage);
+            updateUI();
+        }
+
+        function updateUI() {
+            const t = TRANSLATIONS[currentLanguage];
+            Object.keys(t).forEach(key => {
+                const el = document.getElementById(key);
+                if (el) el.textContent = t[key];
+            });
+            populateProfiles(); // Re-populate with correct language
+        }
+
+        function populateProfiles() {
+            const select = document.getElementById('profile');
+            const t = TRANSLATIONS[currentLanguage];
+            select.innerHTML = `<option value="">${t.labelProfile || 'Selecione...'}</option>`;
+            PROFILES.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = `${p.emoji} #${p.id} — ${p.name}`;
+                select.appendChild(opt);
+            });
+        }
+
+        // NAVIGATION
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startDemo() {
+            showScreen('screen-setup');
+        }
+
+        function viewProfileCard() {
+            const profileId = parseInt(document.getElementById('profile').value);
+            const spaceType = document.getElementById('spacetype').value;
+            const spaceName = document.getElementById('spacename').value;
+            const location = document.getElementById('location').value;
+
+            if (!profileId || !spaceType || !spaceName || !location) {
+                alert('Por favor preencha todos os campos');
+                return;
+            }
+
+            currentConfig = {
+                profileId,
+                spaceType,
+                spaceName,
+                location,
+                narrationLang: document.getElementById('narrationlang').value
+            };
+
+            const profile = PROFILES.find(p => p.id === profileId);
+            const t = TRANSLATIONS[currentLanguage];
+            
+            const cardHTML = `
+                <div class="profile-card-header">
+                    <div class="profile-card-emoji">${profile.emoji}</div>
+                    <div class="profile-card-title">
+                        <h2>${profile.name}</h2>
+                        <span class="badge">Perfil #${profile.id}</span>
+                    </div>
+                </div>
+                <div class="profile-card-section">
+                    <h3>${t.howPerceives}</h3>
+                    <p>${profile.howPerceives}</p>
+                </div>
+                <div class="profile-card-section">
+                    <h3>${t.whereFails}</h3>
+                    <p>${profile.whereFails}</p>
+                </div>
+                <div class="profile-card-section">
+                    <h3>${t.whatToObserve}</h3>
+                    <p>${profile.whatToObserve}</p>
+                </div>
+            `;
+
+            document.getElementById('profileCardContent').innerHTML = cardHTML;
+            showScreen('screen-profilecard');
+        }
+
+        // RECORDING
+        async function startRecording() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment' }, 
+                    audio: true 
+                });
+                
+                document.getElementById('videoPreview').srcObject = stream;
+                
+                mediaRecorder = new MediaRecorder(stream);
+                const chunks = [];
+                
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) chunks.push(e.data);
+                };
+                
+                mediaRecorder.onstop = () => {
+                    currentRecording.videoBlob = new Blob(chunks, { type: 'video/webm' });
+                };
+                
+                mediaRecorder.start();
+                
+                // Start timer
+                let seconds = 0;
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    currentRecording.duration = seconds;
+                    const mins = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    document.getElementById('timer').textContent = 
+                        `${mins}:${secs.toString().padStart(2, '0')}`;
+                }, 1000);
+                
+                // Start GPS
+                gpsInterval = setInterval(() => {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition((pos) => {
+                            currentRecording.gpsPoints.push({
+                                lat: pos.coords.latitude,
+                                lng: pos.coords.longitude,
+                                timestamp: Date.now()
+                            });
+                            document.getElementById('gpsCount').textContent = 
+                                currentRecording.gpsPoints.length;
+                        });
+                    }
+                }, 2000);
+                
+                // Start speech recognition
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    recognition = new SpeechRecognition();
+                    recognition.continuous = true;
+                    recognition.interimResults = true;
+                    recognition.lang = currentConfig.narrationLang || 'pt-PT';
+                    
+                    recognition.onresult = (event) => {
+                        let finalTranscript = '';
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            if (event.results[i].isFinal) {
+                                finalTranscript += event.results[i][0].transcript + ' ';
+                            }
+                        }
+                        
+                        if (finalTranscript) {
+                            currentRecording.transcription += finalTranscript;
+                            document.getElementById('transcriptionPreview').style.display = 'block';
+                            document.getElementById('transcriptionText').textContent = 
+                                currentRecording.transcription;
+                        }
+                    };
+                    
+                    recognition.start();
+                }
+                
+                showScreen('screen-recording');
+                
+            } catch (error) {
+                alert('Erro ao aceder câmara/microfone: ' + error.message);
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder) mediaRecorder.stop();
+            if (stream) stream.getTracks().forEach(track => track.stop());
+            if (recognition) recognition.stop();
+            clearInterval(timerInterval);
+            clearInterval(gpsInterval);
+            
+            // Generate simple manifesto
+            generateManifesto();
+            showScreen('screen-success');
+        }
+
+        function generateManifesto() {
+            const profile = PROFILES.find(p => p.id === currentConfig.profileId);
+            const transcription = currentRecording.transcription || 'Sem transcrição.';
+            
+            const manifestoHTML = `
+                <h3>📝 Transcrição</h3>
+                <p>${transcription}</p>
+                <h3 style="margin-top: 20px;">✅ Dados Capturados</h3>
+                <p>
+                    <strong>Perfil:</strong> ${profile.emoji} ${profile.name}<br>
+                    <strong>Espaço:</strong> ${currentConfig.spaceName}<br>
+                    <strong>Localização:</strong> ${currentConfig.location}<br>
+                    <strong>Duração:</strong> ${Math.floor(currentRecording.duration / 60)}:${(currentRecording.duration % 60).toString().padStart(2, '0')}<br>
+                    <strong>Pontos GPS:</strong> ${currentRecording.gpsPoints.length}
+                </p>
+            `;
+            
+            document.getElementById('manifestoPreview').innerHTML = manifestoHTML;
+        }
+
+        function exportJSON() {
+            const data = {
+                metadata: {
+                    version: "2.0",
+                    exportedAt: new Date().toISOString()
+                },
+                config: currentConfig,
+                recording: {
+                    duration: currentRecording.duration,
+                    gpsPoints: currentRecording.gpsPoints,
+                    transcription: currentRecording.transcription
+                }
+            };
+            
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `waywalker_${currentConfig.spaceName}_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+        }
+
+        function newAnalysis() {
+            currentRecording = {
+                videoBlob: null,
+                gpsPoints: [],
+                transcription: '',
+                duration: 0
+            };
+            document.getElementById('timer').textContent = '0:00';
+            document.getElementById('gpsCount').textContent = '0';
+            document.getElementById('transcriptionText').textContent = '';
+            document.getElementById('transcriptionPreview').style.display = 'none';
+            showScreen('screen-setup');
+        }
+    </script>
+</body>
+</html>
