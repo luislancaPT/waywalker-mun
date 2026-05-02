@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayWalker Desktop - Processamento e Publicação</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .header p { opacity: 0.9; font-size: 1.1rem; }
+        
+        .content { padding: 40px; }
+        
+        .section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        input[type="text"], input[type="password"], textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .file-drop-zone {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .file-drop-zone:hover {
+            background: #f0f4ff;
+            border-color: #764ba2;
+        }
+        
+        .file-drop-zone.dragover {
+            background: #e0e7ff;
+            border-color: #4c51bf;
+        }
+        
+        .analysis-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .analysis-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .analysis-card .metadata {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-bar-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .manifesto-preview {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .manifesto-preview h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metadata-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .metadata-item strong {
+            display: block;
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-info {
+            background: #cfe2ff;
+            border: 2px solid #9ec5fe;
+            color: #084298;
+        }
+        
+        .alert-success {
+            background: #d1e7dd;
+            border: 2px solid #a3cfbb;
+            color: #0a3622;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #664d03;
+        }
+        
+        .log-console {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+        
+        .log-info { color: #4ec9b0; }
+        .log-success { color: #6a9955; }
+        .log-error { color: #f48771; }
+        .log-warning { color: #dcdcaa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖥️ WayWalker Desktop</h1>
+            <p>Processamento e Publicação de Análises</p>
+        </div>
+
+        <div class="content">
+            <!-- SECTION 1: Settings -->
+            <div class="section">
+                <h2>⚙️ Configuração de API</h2>
+                
+                <div class="alert alert-info">
+                    <strong>ℹ️ Primeira vez?</strong> Configure suas API keys abaixo. Elas serão guardadas localmente no seu navegador.
+                </div>
+
+                <label>🤖 Anthropic API Key (Claude)</label>
+                <input type="password" id="anthropicKey" placeholder="sk-ant-api03-...">
+
+                <label>🔑 Google Client ID</label>
+                <input type="text" id="googleClientId" placeholder="1071102758894-...">
+
+                <label>🔑 Google API Key</label>
+                <input type="password" id="googleApiKey" placeholder="AIza...">
+
+                <label>🗺️ Google My Maps ID</label>
+                <input type="text" id="myMapsId" placeholder="1bHrYxFQ7Ynf3HK0...">
+
+                <button class="btn btn-primary" onclick="saveConfig()">💾 Guardar Configuração</button>
+                <button class="btn btn-secondary" onclick="loadConfig()">🔄 Carregar Guardada</button>
+            </div>
+
+            <!-- SECTION 2: Import JSON -->
+            <div class="section">
+                <h2>📥 Importar Análises do iPhone</h2>
+                
+                <div class="file-drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                    <div style="font-size: 4rem; margin-bottom: 20px;">📁</div>
+                    <h3>Arraste ficheiros JSON aqui</h3>
+                    <p style="color: #666; margin-top: 10px;">ou clique para selecionar</p>
+                    <input type="file" id="fileInput" multiple accept=".json" style="display: none;" onchange="handleFiles(this.files)">
+                </div>
+
+                <div id="analysisListContainer" style="margin-top: 30px; display: none;">
+                    <h3 style="margin-bottom: 15px;">Análises Carregadas:</h3>
+                    <div id="analysisList"></div>
+                    
+                    <button class="btn btn-success" onclick="processAll()" id="processAllBtn">
+                        🤖 Processar Todas com Claude API
+                    </button>
+                    
+                    <button class="btn btn-primary" onclick="publishAll()" id="publishAllBtn" disabled>
+                        🚀 Publicar Todas (Drive + My Maps)
+                    </button>
+                </div>
+            </div>
+
+            <!-- SECTION 3: Progress -->
+            <div class="section" id="progressSection" style="display: none;">
+                <h2>⚙️ Processamento</h2>
+                
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" id="progressBar">0%</div>
+                </div>
+
+                <div class="log-console" id="logConsole"></div>
+            </div>
+
+            <!-- SECTION 4: Results -->
+            <div class="section" id="resultsSection" style="display: none;">
+                <h2>✅ Resultados</h2>
+                <div id="resultsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let analyses = [];
+        let config = {};
+
+        // Load configuration
+        function loadConfig() {
+            config.anthropicKey = localStorage.getItem('waywalker_desktop_anthropic_key') || '';
+            config.googleClientId = localStorage.getItem('waywalker_desktop_google_client_id') || '';
+            config.googleApiKey = localStorage.getItem('waywalker_desktop_google_api_key') || '';
+            config.myMapsId = localStorage.getItem('waywalker_desktop_mymaps_id') || '';
+
+            document.getElementById('anthropicKey').value = config.anthropicKey;
+            document.getElementById('googleClientId').value = config.googleClientId;
+            document.getElementById('googleApiKey').value = config.googleApiKey;
+            document.getElementById('myMapsId').value = config.myMapsId;
+
+            if (config.anthropicKey) {
+                log('✅ Configuração carregada', 'success');
+            }
+        }
+
+        function saveConfig() {
+            config.anthropicKey = document.getElementById('anthropicKey').value.trim();
+            config.googleClientId = document.getElementById('googleClientId').value.trim();
+            config.googleApiKey = document.getElementById('googleApiKey').value.trim();
+            config.myMapsId = document.getElementById('myMapsId').value.trim();
+
+            localStorage.setItem('waywalker_desktop_anthropic_key', config.anthropicKey);
+            localStorage.setItem('waywalker_desktop_google_client_id', config.googleClientId);
+            localStorage.setItem('waywalker_desktop_google_api_key', config.googleApiKey);
+            localStorage.setItem('waywalker_desktop_mymaps_id', config.myMapsId);
+
+            alert('✅ Configuração guardada com sucesso!');
+            log('✅ Configuração guardada', 'success');
+        }
+
+        // Drag and drop
+        const dropZone = document.getElementById('dropZone');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // File handling
+        function handleFiles(files) {
+            const fileArray = Array.from(files);
+            const jsonFiles = fileArray.filter(f => f.name.endsWith('.json'));
+
+            if (jsonFiles.length === 0) {
+                alert('❌ Nenhum ficheiro JSON encontrado!');
+                return;
+            }
+
+            log(`📥 A carregar ${jsonFiles.length} ficheiro(s)...`, 'info');
+
+            jsonFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        analyses.push({
+                            filename: file.name,
+                            data: data,
+                            processed: false,
+                            manifesto: null,
+                            published: false
+                        });
+                        displayAnalyses();
+                        log(`✅ ${file.name} carregado`, 'success');
+                    } catch (error) {
+                        log(`❌ Erro ao ler ${file.name}: ${error.message}`, 'error');
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            document.getElementById('analysisListContainer').style.display = 'block';
+        }
+
+        function displayAnalyses() {
+            const container = document.getElementById('analysisList');
+            container.innerHTML = '';
+
+            analyses.forEach((analysis, index) => {
+                const card = document.createElement('div');
+                card.className = 'analysis-card';
+                
+                const status = analysis.published ? '✅ Publicado' : 
+                              analysis.processed ? '🤖 Processado' : 
+                              '⏳ Aguardando';
+
+                card.innerHTML = `
+                    <h3>${analysis.filename} <span style="color: #667eea;">${status}</span></h3>
+                    <div class="metadata">
+                        <strong>Perfil:</strong> ${analysis.data.config?.profileId || 'N/A'}<br>
+                        <strong>Espaço:</strong> ${analysis.data.config?.spaceName || 'N/A'}<br>
+                        <strong>Localização:</strong> ${analysis.data.config?.location || 'N/A'}<br>
+                        <strong>Duração:</strong> ${analysis.data.recording?.duration || 0}s<br>
+                        <strong>GPS:</strong> ${analysis.data.recording?.gpsPoints?.length || 0} pontos<br>
+                        <strong>Transcrição:</strong> ${analysis.data.recording?.transcription?.substring(0, 100) || 'N/A'}...
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Processing
+        async function processAll() {
+            if (!config.anthropicKey) {
+                alert('⚠️ Configure a Anthropic API Key primeiro!');
+                return;
+            }
+
+            const btn = document.getElementById('processAllBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Processando...';
+
+            document.getElementById('progressSection').style.display = 'block';
+
+            const total = analyses.length;
+            let processed = 0;
+
+            for (let i = 0; i < analyses.length; i++) {
+                const analysis = analyses[i];
+                
+                if (!analysis.processed) {
+                    log(`🤖 Processando ${analysis.filename}...`, 'info');
+                    
+                    try {
+                        const manifesto = await generateManifesto(analysis.data);
+                        analysis.manifesto = manifesto;
+                        analysis.processed = true;
+                        
+                        log(`✅ ${analysis.filename} processado com sucesso`, 'success');
+                    } catch (error) {
+                        log(`❌ Erro em ${analysis.filename}: ${error.message}`, 'error');
+                    }
+                }
+
+                processed++;
+                updateProgress(processed, total);
+            }
+
+            btn.textContent = '✅ Processamento Completo';
+            document.getElementById('publishAllBtn').disabled = false;
+            displayAnalyses();
+            displayResults();
+        }
+
+        async function generateManifesto(data) {
+            const transcription = data.recording?.transcription || '';
+            const profileId = data.config?.profileId || 1;
+
+            if (!transcription || transcription.length < 20) {
+                throw new Error('Transcrição muito curta ou inexistente');
+            }
+
+            const prompt = `Você é um especialista em wayfinding e acessibilidade. Analise esta narração de um percurso.
+
+PERFIL ID: ${profileId}
+ESPAÇO: ${data.config?.spaceName || 'N/A'}
+LOCALIZAÇÃO: ${data.config?.location || 'N/A'}
+NARRAÇÃO: ${transcription}
+
+Gere um manifesto em formato JSON com:
+{
+  "sentences": ["frase1", "frase2", "frase3"],
+  "diagnosis": "80-120 palavras sobre os problemas observados",
+  "concepts": ["conceito1", "conceito2", "conceito3"],
+  "stageFails": "qual etapa falha (Orientation/Route Decision/Route Monitoring/Destination Recognition)",
+  "minimalProposal": "proposta concreta em 1-2 frases"
+}
+
+IMPORTANTE: Baseie-se APENAS no que foi narrado. Responda APENAS com JSON válido.`;
+
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': config.anthropicKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 2000,
+                    messages: [{
+                        role: 'user',
+                        content: prompt
+                    }]
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API error: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const text = result.content[0].text;
+            const cleanText = text.replace(/```json|```/g, '').trim();
+            
+            return JSON.parse(cleanText);
+        }
+
+        async function publishAll() {
+            alert('🚧 Função de publicação em desenvolvimento!\n\nPor enquanto, use o Export JSON individual.');
+            // TODO: Implement Google Drive upload with OAuth
+        }
+
+        function updateProgress(current, total) {
+            const percent = Math.round((current / total) * 100);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percent + '%';
+            progressBar.textContent = percent + '%';
+        }
+
+        function displayResults() {
+            document.getElementById('resultsSection').style.display = 'block';
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+
+            analyses.forEach((analysis, index) => {
+                if (!analysis.manifesto) return;
+
+                const resultCard = document.createElement('div');
+                resultCard.className = 'manifesto-preview';
+                
+                resultCard.innerHTML = `
+                    <h4>📄 ${analysis.filename}</h4>
+                    
+                    <h5>🤖 Manifesto Gerado:</h5>
+                    ${analysis.manifesto.sentences.map(s => `<p>• ${s}</p>`).join('')}
+                    
+                    <div class="metadata-grid" style="margin-top: 20px;">
+                        <div class="metadata-item">
+                            <strong>📋 Diagnóstico</strong>
+                            ${analysis.manifesto.diagnosis}
+                        </div>
+                        <div class="metadata-item">
+                            <strong>🎯 Conceitos</strong>
+                            ${analysis.manifesto.concepts.join(', ')}
+                        </div>
+                        <div class="metadata-item">
+                            <strong>⚠️ Etapa que Falla</strong>
+                            ${analysis.manifesto.stageFails}
+                        </div>
+                        <div class="metadata-item">
+                            <strong>💡 Proposta</strong>
+                            ${analysis.manifesto.minimalProposal}
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="exportEnhancedJSON(${index})">
+                        💾 Exportar JSON Completo (com Manifesto)
+                    </button>
+                `;
+
+                container.appendChild(resultCard);
+            });
+        }
+
+        function exportEnhancedJSON(index) {
+            const analysis = analyses[index];
+            
+            const enhancedData = {
+                ...analysis.data,
+                manifesto: analysis.manifesto,
+                processedAt: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(enhancedData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = analysis.filename.replace('.json', '_processed.json');
+            a.click();
+            URL.revokeObjectURL(url);
+
+            log(`💾 ${analysis.filename} exportado com manifesto`, 'success');
+        }
+
+        function log(message, type = 'info') {
+            const console = document.getElementById('logConsole');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadConfig();
+            log('🚀 WayWalker Desktop iniciado', 'success');
+        });
+    </script>
+</body>
+</html>
