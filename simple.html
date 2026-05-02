@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache">
+    <title>WayWalker Simple</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .content {
+            padding: 30px;
+        }
+        h1 { font-size: 2rem; margin-bottom: 5px; }
+        p { opacity: 0.9; margin-bottom: 20px; }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>WayWalker</h1>
+            <p>Empathy Wayfinding Tracker</p>
+        </div>
+
+        <!-- Screen 1: Login -->
+        <div id="screen-login" class="screen active">
+            <div class="content">
+                <div style="text-align: center; padding: 40px 0;">
+                    <div style="font-size: 5rem; margin-bottom: 20px;">🗺️</div>
+                    <h2 style="margin-bottom: 10px;">WayWalker v2.0</h2>
+                    <p style="color: #666;">Modo Demo - Teste sem API</p>
+                    <button class="btn btn-primary" onclick="goToSetup()">
+                        ▶️ Iniciar (Modo Demo)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 2: Setup -->
+        <div id="screen-setup" class="screen">
+            <div class="content">
+                <h2 style="margin-bottom: 20px;">Nova Análise</h2>
+                
+                <label>Perfil de Empatia</label>
+                <select id="profile">
+                    <option value="">Selecione...</option>
+                    <option value="1">🧓 #1 - Adulto mayor con movilidad reducida</option>
+                    <option value="2">👶 #2 - Niño de 4 años</option>
+                    <option value="3">🦯 #3 - Persona ciega con bastón</option>
+                </select>
+
+                <label>Tipologia de Espaço</label>
+                <select id="spacetype">
+                    <option value="">Selecione...</option>
+                    <option value="hospital">Hospital / Centro de salud</option>
+                    <option value="campus">Campus universitário</option>
+                    <option value="transport">Estação de transporte</option>
+                </select>
+
+                <label>Nome do Espaço</label>
+                <input type="text" id="spacename" placeholder="Ex: Estação Rossio">
+
+                <label>Localização</label>
+                <input type="text" id="location" placeholder="Ex: Lisboa, Portugal">
+
+                <button class="btn btn-primary" onclick="startRecording()">
+                    📹 Iniciar Gravação
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Recording -->
+        <div id="screen-recording" class="screen">
+            <div class="content">
+                <h2 style="margin-bottom: 20px;">🔴 Gravando...</h2>
+                <p>Narre em voz alta o que observa no espaço.</p>
+                
+                <div style="background: #f0f0f0; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <div style="font-size: 3rem; text-align: center; margin-bottom: 10px;">⏱️</div>
+                    <div id="timer" style="text-align: center; font-size: 2rem; font-weight: bold;">0:00</div>
+                </div>
+
+                <button class="btn btn-primary" onclick="stopRecording()">
+                    ⏹️ Parar Gravação
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 4: Success -->
+        <div id="screen-success" class="screen">
+            <div class="content">
+                <div style="text-align: center; padding: 40px 0;">
+                    <div style="font-size: 5rem; margin-bottom: 20px;">✅</div>
+                    <h2 style="margin-bottom: 10px;">Análise Completa!</h2>
+                    <p style="color: #666; margin-bottom: 30px;">
+                        Gravação salva com sucesso.
+                    </p>
+                    <button class="btn btn-primary" onclick="newAnalysis()">
+                        ➕ Nova Análise
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let timerInterval;
+        let seconds = 0;
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function goToSetup() {
+            console.log('Going to setup');
+            showScreen('screen-setup');
+        }
+
+        function startRecording() {
+            const profile = document.getElementById('profile').value;
+            const spacetype = document.getElementById('spacetype').value;
+            const spacename = document.getElementById('spacename').value;
+            const location = document.getElementById('location').value;
+
+            if (!profile || !spacetype || !spacename || !location) {
+                alert('Por favor preencha todos os campos');
+                return;
+            }
+
+            console.log('Starting recording', { profile, spacetype, spacename, location });
+            showScreen('screen-recording');
+
+            // Start timer
+            seconds = 0;
+            timerInterval = setInterval(() => {
+                seconds++;
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                document.getElementById('timer').textContent = 
+                    `${mins}:${secs.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function stopRecording() {
+            console.log('Stopping recording after', seconds, 'seconds');
+            clearInterval(timerInterval);
+            showScreen('screen-success');
+        }
+
+        function newAnalysis() {
+            console.log('New analysis');
+            showScreen('screen-setup');
+        }
+
+        // Debug: log on load
+        window.addEventListener('load', () => {
+            console.log('✅ WayWalker Simple loaded successfully');
+            console.log('Current screen:', document.querySelector('.screen.active').id);
+        });
+    </script>
+</body>
+</html>
