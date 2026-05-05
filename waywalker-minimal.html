@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayWalker Minimal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .screen {
+            display: none;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        button {
+            width: 100%;
+            padding: 20px;
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            background: #667eea;
+            color: white;
+        }
+        
+        button:active {
+            background: #5568d3;
+        }
+        
+        button.secondary {
+            background: #6c757d;
+        }
+        
+        button.secondary:active {
+            background: #5a6268;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .emoji {
+            font-size: 4rem;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        #status {
+            padding: 15px;
+            margin: 20px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .success {
+            background: #d4edda !important;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <!-- SCREEN 1: Login -->
+    <div id="screen-1" class="screen active">
+        <div class="emoji">🗺️</div>
+        <h1>WayWalker Minimal</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Versão simplificada que funciona em iPhone
+        </p>
+        <button id="btn-start">▶️ Iniciar Análise</button>
+        <div id="debug" style="margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 8px; font-size: 12px;">
+            Status: Aguardando...
+        </div>
+    </div>
+
+    <!-- SCREEN 2: Setup -->
+    <div id="screen-2" class="screen">
+        <h1>📋 Configuração</h1>
+        
+        <label>Perfil de Empatia:</label>
+        <select id="profile">
+            <option value="">Selecione...</option>
+            <option value="19">🧓 #19 - Adulto mayor con DCL (MCI)</option>
+            <option value="20">📚 #20 - Estudiante con dislexia</option>
+            <option value="12">🧠 #12 - Demencia leve (Alzheimer)</option>
+        </select>
+        
+        <label>Espaço:</label>
+        <input type="text" id="space" placeholder="Ex: Facultad de Letras">
+        
+        <label>Localização:</label>
+        <input type="text" id="location" placeholder="Ex: Lisboa, Portugal">
+        
+        <button id="btn-record">🔴 Iniciar Gravação</button>
+        <button id="btn-back-1" class="secondary">⬅️ Voltar</button>
+    </div>
+
+    <!-- SCREEN 3: Recording -->
+    <div id="screen-3" class="screen">
+        <h1>🔴 A Gravar...</h1>
+        
+        <div id="status">
+            <p>⏱️ <span id="timer">0:00</span></p>
+            <p>📍 <span id="gps-count">0</span> pontos GPS</p>
+        </div>
+        
+        <p style="text-align: center; margin: 20px 0;">
+            Narre em voz alta o que observa durante o percurso.
+        </p>
+        
+        <button id="btn-stop">⏹️ Parar Gravação</button>
+    </div>
+
+    <!-- SCREEN 4: Success -->
+    <div id="screen-4" class="screen">
+        <h1>✅ Análise Completa!</h1>
+        
+        <div id="status" class="success">
+            <p><strong>Perfil:</strong> <span id="result-profile"></span></p>
+            <p><strong>Espaço:</strong> <span id="result-space"></span></p>
+            <p><strong>Duração:</strong> <span id="result-duration"></span></p>
+            <p><strong>GPS:</strong> <span id="result-gps"></span> pontos</p>
+        </div>
+        
+        <button id="btn-export">💾 Exportar JSON</button>
+        <button id="btn-new" class="secondary">➕ Nova Análise</button>
+    </div>
+
+    <script>
+        // Debug function
+        function log(msg) {
+            console.log(msg);
+            const debug = document.getElementById('debug');
+            if (debug) {
+                debug.innerHTML = 'Status: ' + msg;
+            }
+        }
+
+        // State
+        let currentScreen = 1;
+        let recording = {
+            profile: '',
+            space: '',
+            location: '',
+            duration: 0,
+            gpsPoints: [],
+            startTime: null
+        };
+        let timerInterval = null;
+        let gpsInterval = null;
+
+        // Navigation
+        function showScreen(screenNumber) {
+            try {
+                log('Mudando para tela ' + screenNumber);
+                
+                // Hide all
+                document.querySelectorAll('.screen').forEach(s => {
+                    s.classList.remove('active');
+                });
+                
+                // Show target
+                const target = document.getElementById('screen-' + screenNumber);
+                if (target) {
+                    target.classList.add('active');
+                    currentScreen = screenNumber;
+                    log('✅ Tela ' + screenNumber + ' ativa');
+                } else {
+                    log('❌ Tela não encontrada: ' + screenNumber);
+                }
+            } catch (error) {
+                log('❌ Erro: ' + error.message);
+                alert('Erro ao mudar tela: ' + error.message);
+            }
+        }
+
+        // Button handlers
+        function setupButtons() {
+            try {
+                log('Configurando botões...');
+                
+                // Screen 1
+                const btnStart = document.getElementById('btn-start');
+                if (btnStart) {
+                    btnStart.addEventListener('click', function() {
+                        log('Botão Iniciar clicado');
+                        showScreen(2);
+                    });
+                    log('✅ btn-start OK');
+                }
+                
+                // Screen 2
+                const btnRecord = document.getElementById('btn-record');
+                if (btnRecord) {
+                    btnRecord.addEventListener('click', startRecording);
+                    log('✅ btn-record OK');
+                }
+                
+                const btnBack1 = document.getElementById('btn-back-1');
+                if (btnBack1) {
+                    btnBack1.addEventListener('click', function() {
+                        showScreen(1);
+                    });
+                    log('✅ btn-back-1 OK');
+                }
+                
+                // Screen 3
+                const btnStop = document.getElementById('btn-stop');
+                if (btnStop) {
+                    btnStop.addEventListener('click', stopRecording);
+                    log('✅ btn-stop OK');
+                }
+                
+                // Screen 4
+                const btnExport = document.getElementById('btn-export');
+                if (btnExport) {
+                    btnExport.addEventListener('click', exportData);
+                    log('✅ btn-export OK');
+                }
+                
+                const btnNew = document.getElementById('btn-new');
+                if (btnNew) {
+                    btnNew.addEventListener('click', function() {
+                        showScreen(1);
+                    });
+                    log('✅ btn-new OK');
+                }
+                
+                log('✅ Todos os botões configurados!');
+            } catch (error) {
+                log('❌ Erro nos botões: ' + error.message);
+                alert('Erro: ' + error.message);
+            }
+        }
+
+        function startRecording() {
+            try {
+                // Get data
+                recording.profile = document.getElementById('profile').value;
+                recording.space = document.getElementById('space').value;
+                recording.location = document.getElementById('location').value;
+                
+                if (!recording.profile || !recording.space || !recording.location) {
+                    alert('⚠️ Preencha todos os campos!');
+                    return;
+                }
+                
+                recording.startTime = Date.now();
+                recording.duration = 0;
+                recording.gpsPoints = [];
+                
+                // Show recording screen
+                showScreen(3);
+                
+                // Start timer
+                timerInterval = setInterval(updateTimer, 1000);
+                
+                // Start GPS
+                gpsInterval = setInterval(captureGPS, 2000);
+                
+                log('Gravação iniciada');
+            } catch (error) {
+                alert('Erro ao iniciar: ' + error.message);
+            }
+        }
+
+        function updateTimer() {
+            recording.duration = Math.floor((Date.now() - recording.startTime) / 1000);
+            const mins = Math.floor(recording.duration / 60);
+            const secs = recording.duration % 60;
+            document.getElementById('timer').textContent = mins + ':' + secs.toString().padStart(2, '0');
+        }
+
+        function captureGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(pos) {
+                        recording.gpsPoints.push({
+                            lat: pos.coords.latitude,
+                            lng: pos.coords.longitude,
+                            timestamp: Date.now()
+                        });
+                        document.getElementById('gps-count').textContent = recording.gpsPoints.length;
+                    },
+                    function(error) {
+                        console.log('GPS error:', error);
+                    }
+                );
+            }
+        }
+
+        function stopRecording() {
+            try {
+                // Stop intervals
+                if (timerInterval) clearInterval(timerInterval);
+                if (gpsInterval) clearInterval(gpsInterval);
+                
+                // Show results
+                const profileNames = {
+                    '19': '🧓 #19 - Adulto mayor con DCL',
+                    '20': '📚 #20 - Estudiante con dislexia',
+                    '12': '🧠 #12 - Demencia leve'
+                };
+                
+                document.getElementById('result-profile').textContent = profileNames[recording.profile] || recording.profile;
+                document.getElementById('result-space').textContent = recording.space + ', ' + recording.location;
+                
+                const mins = Math.floor(recording.duration / 60);
+                const secs = recording.duration % 60;
+                document.getElementById('result-duration').textContent = mins + ':' + secs.toString().padStart(2, '0');
+                document.getElementById('result-gps').textContent = recording.gpsPoints.length;
+                
+                showScreen(4);
+                
+                log('Gravação parada');
+            } catch (error) {
+                alert('Erro ao parar: ' + error.message);
+            }
+        }
+
+        function exportData() {
+            try {
+                const data = {
+                    profile: recording.profile,
+                    space: recording.space,
+                    location: recording.location,
+                    duration: recording.duration,
+                    gpsPoints: recording.gpsPoints,
+                    timestamp: new Date().toISOString()
+                };
+                
+                const jsonString = JSON.stringify(data, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'waywalker_' + recording.space.replace(/\s/g, '_') + '_' + new Date().toISOString().split('T')[0] + '.json';
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                
+                alert('✅ JSON exportado com sucesso!');
+            } catch (error) {
+                alert('Erro ao exportar: ' + error.message);
+            }
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            log('Página carregada');
+            setupButtons();
+            log('✅ Pronto para usar!');
+        });
+    </script>
+</body>
+</html>
