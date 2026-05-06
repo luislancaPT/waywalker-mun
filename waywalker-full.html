@@ -1,0 +1,1805 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WayWalker v2.0</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: #333;
+    }
+
+    .screen {
+      display: none;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 600px;
+      margin: 0 auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      color: #667eea;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    h2 {
+      color: #764ba2;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin: 10px 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .profile-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
+    .profile-emoji {
+      font-size: 60px;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .profile-name {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .profile-section {
+      margin-bottom: 15px;
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .profile-section h3 {
+      font-size: 14px;
+      margin-bottom: 8px;
+      opacity: 0.9;
+    }
+
+    .profile-section p {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .video-container {
+      position: relative;
+      width: 100%;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    #videoPreview {
+      width: 100%;
+      display: block;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #667eea;
+    }
+
+    .transcription-box {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      min-height: 100px;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #555;
+      border: 2px dashed #e0e0e0;
+    }
+
+    .success-summary {
+      background: #f0fdf4;
+      border: 2px solid #86efac;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .success-summary h3 {
+      color: #16a34a;
+      margin-bottom: 10px;
+    }
+
+    .success-summary p {
+      margin: 5px 0;
+      color: #555;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .logo-emoji {
+      font-size: 80px;
+      margin-bottom: 10px;
+    }
+
+    .settings-box {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .settings-box p {
+      margin: 10px 0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .alert {
+      background: #fef3c7;
+      border: 2px solid #fbbf24;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #92400e;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #667eea;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SCREEN 1: Login -->
+  <div id="screen-login" class="screen active">
+    <div class="logo">
+      <div class="logo-emoji">🗺️</div>
+      <h1 id="text-title">WayWalker v2.0</h1>
+      <p class="subtitle" id="text-subtitle">Análise de Wayfinding com Perfis de Empatia</p>
+    </div>
+    
+    <div class="form-group">
+      <label id="text-language-label">🌍 Idioma / Language</label>
+      <select id="input-language">
+        <option value="pt">🇵🇹 Português</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="en">🇬🇧 English</option>
+      </select>
+    </div>
+    
+    <button id="btn-start" class="btn">▶️ Iniciar Nova Análise</button>
+    <button id="btn-settings" class="btn btn-secondary">⚙️ Configurações</button>
+  </div>
+
+  <!-- SCREEN 2: Setup -->
+  <div id="screen-setup" class="screen">
+    <h2 id="text-setup-title">📝 Configuração da Análise</h2>
+    
+    <div class="form-group">
+      <label id="text-label-profile">Perfil de Empatia</label>
+      <select id="input-profile">
+        <!-- Perfis serão adicionados via JavaScript -->
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label id="text-label-space">Nome do Espaço</label>
+      <input type="text" id="input-space" placeholder="Ex: Facultad de Letras">
+    </div>
+
+    <div class="form-group">
+      <label id="text-label-location">Localização</label>
+      <input type="text" id="input-location" placeholder="Ex: Lisboa, Portugal">
+    </div>
+
+    <div class="form-group">
+      <label id="text-label-space-type">Tipo de Espaço</label>
+      <select id="input-space-type">
+        <!-- Preenchido via JavaScript com traduções -->
+      </select>
+    </div>
+
+    <button id="btn-view-profile" class="btn">👤 Ver Ficha do Perfil</button>
+    <button id="btn-back-setup" class="btn btn-secondary">⬅️ Voltar</button>
+  </div>
+
+  <!-- SCREEN 3: Profile Card -->
+  <div id="screen-profile" class="screen">
+    <div class="profile-card">
+      <div class="profile-emoji" id="profile-emoji">🧓</div>
+      <div class="profile-name" id="profile-name">Perfil</div>
+      
+      <div class="profile-section">
+        <h3 id="text-how-perceives">👁️ COMO PERCEBE</h3>
+        <p id="profile-perceives"></p>
+      </div>
+      
+      <div class="profile-section">
+        <h3 id="text-where-fails">❌ ONDE FALLA</h3>
+        <p id="profile-fails"></p>
+      </div>
+      
+      <div class="profile-section">
+        <h3 id="text-what-observe">🔍 O QUE OBSERVAR</h3>
+        <p id="profile-observe"></p>
+      </div>
+    </div>
+
+    <button id="btn-start-recording" class="btn">🎥 Iniciar Gravação</button>
+    <button id="btn-back-profile" class="btn btn-secondary">⬅️ Voltar</button>
+  </div>
+
+  <!-- SCREEN 4: Recording -->
+  <div id="screen-recording" class="screen">
+    <h2 id="text-recording-title">🎥 Gravação em Curso</h2>
+    
+    <div class="video-container">
+      <video id="videoPreview" autoplay muted playsinline></video>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="stat-label" id="text-label-duration">⏱️ DURAÇÃO</div>
+        <div class="stat-value" id="timer-display">00:00</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label" id="text-label-gps">📍 GPS PONTOS</div>
+        <div class="stat-value" id="gps-count">0</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label id="text-label-transcription">📝 Transcrição (ao vivo)</label>
+      <div class="transcription-box" id="transcription-display">
+        Aguardando narração...
+      </div>
+    </div>
+
+    <button id="btn-stop-recording" class="btn btn-danger">⏹️ Parar Gravação</button>
+  </div>
+
+  <!-- SCREEN 5: Success -->
+  <div id="screen-success" class="screen">
+    <h2 id="text-success-title">✅ Análise Concluída!</h2>
+
+    <div class="success-summary" id="success-summary">
+      <!-- Preenchido via JavaScript -->
+    </div>
+
+    <button id="btn-export-json" class="btn">💾 Export JSON</button>
+    <button id="btn-download-video" class="btn">🎥 Download Vídeo</button>
+    <button id="btn-download-kml" class="btn">🗺️ Download KML</button>
+    <button id="btn-new-analysis" class="btn btn-success">➕ Nova Análise</button>
+  </div>
+
+  <!-- SCREEN: Settings -->
+  <div id="screen-settings" class="screen">
+    <h2 id="text-settings-title">⚙️ Configurações</h2>
+
+    <div class="settings-box">
+      <h3>📱 Informação do Sistema</h3>
+      <p><strong>Versão:</strong> WayWalker v2.0</p>
+      <p><strong>Browser:</strong> <span id="browser-info"></span></p>
+      <p><strong>Plataforma:</strong> <span id="platform-info"></span></p>
+    </div>
+
+    <div class="alert">
+      ⚠️ <strong>Permissões Necessárias:</strong><br>
+      • Câmera (vídeo)<br>
+      • Microfone (narração)<br>
+      • Localização (GPS tracking)
+    </div>
+
+    <div class="settings-box">
+      <h3>ℹ️ Sobre</h3>
+      <p>WayWalker é uma ferramenta para análise de wayfinding com perfis de empatia.</p>
+      <p>Desenvolvido para investigação em acessibilidade espacial.</p>
+    </div>
+
+    <button id="btn-back-settings" class="btn btn-secondary">⬅️ Voltar</button>
+  </div>
+
+  <script>
+    // ========================================
+    // PERFIS DE EMPATIA (30 perfis)
+    // ========================================
+    const PROFILES = [
+      {
+        id: 1,
+        emoji: "👨‍🦯",
+        name: "Persona ciega completa (adulto, 30-50 años, uso de bastón)",
+        category: "Visual",
+        howPerceives: "Ausencia total de información visual. Depende de tacto, oído y memoria espacial. Detecta cambios de textura en pavimento, corrientes de aire, ecos de sonido para orientarse. No percibe señalización visual, colores, ni landmarks visuales. Puede usar apps de navegación con audio pero necesita referencias táctiles físicas.",
+        whereFails: "Falla en Orientation cuando no hay diferenciación táctil de zonas ni señalización sonora. En Route Decision cuando bifurcaciones no tienen indicación táctil o auditiva. En Route Monitoring sin cambios de textura que confirmen ruta. En Destination Recognition si puerta/entrada no tiene indicación táctil o sonora distintiva.",
+        whatToObserve: "Pavimentos táctiles (guía, alerta). Señalización braille y relieve. Contrastes de textura. Información sonora (beacons, anuncios). Obstáculos a nivel de cintura/cabeza. Continuidad de referencias táctiles. Esquinas con cambios detectables. Puertas con indicaciones táctiles claras."
+      },
+      {
+        id: 2,
+        emoji: "👁️",
+        name: "Persona con baja visión (visión periférica, 20-60 años)",
+        category: "Visual",
+        howPerceives: "Visión central perdida (degeneración macular). Ve por los lados, no al frente directo. Necesita alto contraste y buena iluminación. No lee señales pequeñas o de bajo contraste. Detecta movimiento lateral mejor que detalles frontales. Se orienta por contornos y formas grandes.",
+        whereFails: "Falla en Orientation cuando señalización está solo en eje central de visión. En Route Decision si opciones no están marcadas con alto contraste lateral. En Route Monitoring cuando confirmaciones son sutiles o centrales. En Destination Recognition si entrada no tiene contraste visual fuerte en marco/perímetro.",
+        whatToObserve: "Contraste cromático (ratio 7:1 mínimo). Señalización periférica o repetida. Iluminación uniforme sin deslumbramientos. Bordes y marcos de puertas con contraste. Información en múltiples puntos (no solo central). Tamaño de tipografía y pictogramas (mínimo 10cm). Evitar fondos complejos."
+      },
+      {
+        id: 3,
+        emoji: "🎧",
+        name: "Persona sorda profunda (adulto, 25-55 años, lengua de señas nativa)",
+        category: "Auditivo",
+        howPerceives: "Ausencia total de información auditiva. Depende 100% de información visual. No percibe alarmas sonoras, anuncios de audio, ni indicaciones verbales. Usa visión periférica para detectar movimiento. Prefiere información visual clara y pictográfica. Comunica en lengua de señas.",
+        whereFails: "Falla en Orientation si información crítica es solo auditiva (anuncios). En Route Decision cuando indicaciones son verbales sin visual. En Route Monitoring si alertas/confirmaciones son solo sonoras. En Destination Recognition si llamadas/nombres son solo por audio. Exclusión total en sistemas audio-dependientes.",
+        whatToObserve: "Señalización visual redundante (nunca solo audio). Pantallas de información textual. Pictogramas universales. Alertas visuales (luces, parpadeos). Personal capacitado en lengua de señas o comunicación visual. Mapas y diagramas claros. Códigos de color para zonas/funciones."
+      },
+      {
+        id: 4,
+        emoji: "🦽",
+        name: "Usuario de silla de ruedas manual (adulto, 20-50 años, parapléjico)",
+        category: "Movilidad",
+        howPerceives: "Altura de visión reducida (~120cm sentado). Alcance vertical limitado (50-140cm). Necesita espacios amplios para girar (150cm diámetro mínimo). Detecta desniveles y obstáculos a nivel del suelo. Fatiga de brazos en recorridos largos o con pendiente. No puede subir escalones.",
+        whereFails: "Falla en Orientation cuando señalización está muy alta (>160cm) o muy baja (<80cm). En Route Decision ante escaleras sin alternativa de rampa o ascensor. En Route Monitoring cuando piso irregular causa desviación. En Destination Recognition si entrada tiene escalón o si señal/timbre están fuera de alcance.",
+        whatToObserve: "Rampas (pendiente máx 8%). Anchura de pasillos (mín 120cm). Altura de señalización (80-120cm). Pavimento liso y firme. Espacios de rotación. Puertas con apertura fácil (no pesadas). Botones/timbres accesibles. Aseos adaptados. Evitar desniveles."
+      },
+      {
+        id: 5,
+        emoji: "🧑‍🦼",
+        name: "Usuario de silla de ruedas eléctrica (adulto, 30-65 años, tetrapléjico)",
+        category: "Movilidad",
+        howPerceives: "Similar a silla manual pero con menos control fino de movimiento. Silla más ancha y pesada. Control por joystick (puede tener precisión limitada). Autonomía limitada por batería. Velocidad constante (difícil frenar súbitamente). Necesita espacios aún más amplios.",
+        whereFails: "Falla en Orientation cuando señalización requiere aproximación precisa. En Route Decision ante espacios estrechos (<150cm) o con obstáculos bajos. En Route Monitoring en superficies irregulares que desvían la silla. En Destination Recognition si entrada es estrecha o requiere maniobra compleja.",
+        whatToObserve: "Anchura generosa (mín 150cm). Superficies muy lisas. Espacios de rotación grandes (180cm). Enchufes para carga. Evitar pendientes prolongadas. Señalización visible desde lejos (no requiere aproximación). Puertas automáticas. Áreas de descanso amplias."
+      },
+      {
+        id: 6,
+        emoji: "👴",
+        name: "Persona mayor con andador (70-85 años, osteoartritis)",
+        category: "Movilidad + Edad",
+        howPerceives: "Marcha lenta y fatigable. Necesita apoyo constante del andador. Alcance vertical muy limitado. Visión posiblemente reducida (cataratas). Equilibrio frágil. Dificultad para girar cabeza/cuerpo. Fatiga cognitiva al procesar múltiples estímulos simultáneamente.",
+        whereFails: "Falla en Orientation cuando señalización requiere girar la cabeza o está muy alta. En Route Decision ante superficies irregulares o cuando opciones no son claras. En Route Monitoring si distancias son largas sin descansos. En Destination Recognition si hay desnivel o si señal es pequeña/distante.",
+        whatToObserve: "Pavimento liso y antideslizante. Pasamanos continuos. Asientos frecuentes (cada 50m). Señalización grande y a altura media (120-140cm). Iluminación excelente. Evitar desniveles. Rutas cortas y directas. Protección climática (sombra, refugio lluvia)."
+      },
+      {
+        id: 7,
+        emoji: "🧩",
+        name: "Persona con trastorno del espectro autista (TEA nivel 2, adulto joven)",
+        category: "Cognitivo + Sensorial",
+        howPerceives: "Sobrecarga sensorial ante estímulos múltiples (ruido, luces, multitudes). Dificultad para procesar información social (caras, gestos). Prefiere rutinas y patrones predecibles. Puede tener hipersensibilidad táctil, auditiva o visual. Procesamiento literal de información (no entiende metáforas/iconos ambiguos).",
+        whereFails: "Falla en Orientation en ambientes caóticos sin estructura clara. En Route Decision cuando iconografía es abstracta o ambigua. En Route Monitoring ante cambios inesperados de ruta. En Destination Recognition si ambiente es socialmente complejo (preguntara personas causa ansiedad). El estrés sensorial bloquea navegación.",
+        whatToObserve: "Señalización literal y concreta (no abstracta). Ambientes sensorialmente calmados. Rutas predecibles con pocos cambios. Pictogramas claros y universales. Mapas visuales simples. Evitar ruido/luces intensas. Zonas de descanso tranquilas. Consistencia visual (mismo código en todo espacio)."
+      },
+      {
+        id: 8,
+        emoji: "👶",
+        name: "Padre/madre con cochecito de bebé doble (30-40 años)",
+        category: "Movilidad Temporal",
+        howPerceives: "Cochecito ancho (80-90cm) y pesado. Maniobra limitada en espacios estrechos. Necesita ascensores (no escaleras). Atención dividida entre niños y navegación. Requiere cambio de pañales y áreas de lactancia. Fatiga al empujar en pendientes. Carga adicional (bolsos, compras).",
+        whereFails: "Falla en Orientation cuando señalización de ascensores/accesos no es clara. En Route Decision ante escaleras sin alternativa visible. En Route Monitoring en pasillos estrechos con obstáculos. En Destination Recognition si entrada tiene torniquete estrecho o escalón. Exclusión en espacios 'adulto-céntricos'.",
+        whatToObserve: "Anchura de pasillos (mín 100cm). Ascensores amplios. Rampas suaves. Puertas anchas y automáticas. Señalización de servicios familiares (cambio bebé, lactancia). Áreas de descanso con sombra. Evitar torniquetes estrechos. Pavimento liso."
+      },
+      {
+        id: 9,
+        emoji: "🎒",
+        name: "Turista internacional (25-35 años, no habla idioma local, primera visita)",
+        category: "Idioma + Desorientación",
+        howPerceives: "No comprende texto en idioma local. Depende de iconografía universal y mapas. Desorientado en entorno desconocido. Usa smartphone para traducir/navegar. Puede tener ansiedad por perderse. Confía en landmarks visuales únicos. No conoce códigos culturales locales.",
+        whereFails: "Falla en Orientation cuando señalización es solo textual en idioma local. En Route Decision si iconos no son internacionalmente reconocibles. En Route Monitoring sin landmarks visuales distintivos (todo se ve igual). En Destination Recognition si nombre es solo en idioma local sin foto/icono.",
+        whatToObserve: "Pictogramas internacionales (ISO). Mapas visuales con landmarks. Señalización multilingüe. WiFi público. Código de colores consistente. Fotografías de destinos. Evitar texto-dependencia. Numeración/códigos claros. Personal con idiomas o señalización visual."
+      },
+      {
+        id: 10,
+        emoji: "🏃",
+        name: "Corredor/deportista con discapacidad visual parcial (20-40 años, retinosis pigmentaria)",
+        category: "Visual + Actividad",
+        howPerceives: "Visión de túnel (campo visual reducido a 10-20 grados centrales). Ve solo lo que está directamente al frente. Pierde visión periférica (no detecta obstáculos laterales). Visión nocturna muy reducida. En movimiento rápido, campo visual efectivo es aún menor.",
+        whereFails: "Falla en Orientation cuando señalización está en ángulos laterales. En Route Decision si bifurcaciones no están marcadas frontalmente. En Route Monitoring ante obstáculos laterales (no los ve). En Destination Recognition si entrada está en ángulo o requiere visión periférica. Peligro de colisión.",
+        whatToObserve: "Señalización frontal y redundante. Pavimento libre de obstáculos laterales. Iluminación uniforme y potente. Contraste cromático. Evitar elementos volados laterales. Advertencias de cambios de nivel en campo central. Rutas rectilíneas. Barreras protectoras."
+      },
+      {
+        id: 11,
+        emoji: "🧳",
+        name: "Viajante com bagagem pesada (40-60 anos, mala grande + mochila)",
+        category: "Movilidad Temporal",
+        howPerceives: "Carga pesada limita movimientos. Necessita ascensores/rampas. Dificuldade em portas pesadas. Alcance vertical limitado enquanto segura bagagem. Fadiga rápida. Não pode usar mapas físicos (mãos ocupadas). Mobilidade reduzida em escadas.",
+        whereFails: "Falha em Orientation quando sinalização requer aproximação (não pode soltar bagagem). Em Route Decision ante escadas sem alternativa clara. Em Route Monitoring em corredores estreitos. Em Destination Recognition se entrada tem torniquete ou degraus.",
+        whatToObserve: "Elevadores amplos e bem sinalizados. Rampas suaves. Portas automáticas. Sinalização visível à distância. Áreas de descanso. Evitar escadas. Pavimento liso. Largura generosa. Carrinhos disponíveis."
+      },
+      {
+        id: 12,
+        emoji: "🧒",
+        name: "Criança de 6-8 anos (altura ~120cm, primeira vez no espaço)",
+        category: "Idade + Altura",
+        howPerceives: "Altura de visão muito reduzida (~120cm). Não vê sinalização alta. Atenção dispersa. Capacidade de leitura limitada. Processa informação visual mais lentamente. Memória de trabalho reduzida. Assusta-se em multidões. Depende de adulto mas pode separar-se.",
+        whereFails: "Falha em Orientation quando sinalização está acima de 150cm. Em Route Decision se iconografia é complexa/textual. Em Route Monitoring em multidões (perde referências). Em Destination Recognition se porta/entrada não tem elemento distintivo à sua altura.",
+        whatToObserve: "Sinalização baixa (80-130cm). Pictogramas coloridos e simples. Elementos visuais ao nível da criança. Mapas ilustrados. Zonas de segurança. Evitar dependência de texto. Landmarks divertidos e memoráveis. Protecção em multidões."
+      },
+      {
+        id: 13,
+        emoji: "🤰",
+        name: "Grávida no 8º mês (30-35 anos, mobilidade reduzida)",
+        category: "Movilidade Temporal + Saúde",
+        howPerceives: "Mobilidade reduzida e marcha mais lenta. Equilíbrio alterado. Fadiga rápida. Necessidade frequente de WC. Dificuldade em ver chão (barriga). Não consegue baixar-se. Pode ter náuseas ou tonturas. Sensibilidade a odores e calor.",
+        whereFails: "Falha em Orientation quando não há sinalização de WCs próximos. Em Route Decision ante escadas ou distâncias longas sem descanso. Em Route Monitoring se piso irregular (não vê bem o chão). Em Destination Recognition se requer baixar-se ou esforço físico.",
+        whatToObserve: "WCs próximos e sinalizados. Assentos frequentes. Rampas/elevadores. Protecção climática. Evitar escadas. Sinalização de serviços. Corrimões. Pavimento muito liso e livre de obstáculos. Largura generosa."
+      },
+      {
+        id: 14,
+        emoji: "🧑‍🦯",
+        name: "Pessoa com surdocegueira parcial (adulto, 40-60 anos)",
+        category: "Visual + Auditivo",
+        howPerceives: "Perda visual e auditiva combinadas (não total). Depende de tacto e proximidade. Campo visual muito reduzido + audição limitada. Necessita informação táctil e alto contraste. Usa bengala + aparelho auditivo. Fadiga sensorial rápida.",
+        whereFails: "Falha em Orientation sem referências tácteis ou visuais de alto contraste. Em Route Decision quando informação é só visual ou só auditiva. Em Route Monitoring sem confirmações tácteis. Em Destination Recognition se não há indicação táctil ou visual de altíssimo contraste.",
+        whatToObserve: "Pavimento táctil + contraste visual extremo. Sinalização táctil (braille, relevo) com cores contrastantes. Iluminação excelente. Evitar ruído de fundo. Mapas tácteis. Continuidade de referências. Guias tácteis contínuas."
+      },
+      {
+        id: 15,
+        emoji: "💼",
+        name: "Executivo em cadeira de rodas (35-50 anos, reunião importante, stress temporal)",
+        category: "Movilidade + Stress",
+        howPerceives: "Usuário experiente de cadeira mas sob pressão temporal. Procura rota mais rápida, não mais acessível necessariamente. Stress aumenta erro de navegação. Atenção dividida (telefone, documentos). Apresentação profissional importante. Não pode chegar suado/desarrumado.",
+        whereFails: "Falha em Orientation quando sinalização de rotas acessíveis é confusa com rotas gerais. Em Route Decision se alternativa acessível não está clara ou parece mais longa. Em Route Monitoring quando desvios inesperados. Em Destination Recognition se entrada acessível é diferente da principal.",
+        whatToObserve: "Sinalização clara de rotas acessíveis directas. Elevadores rápidos. Evitar desvios longos. Pavimento profissional (não improvisado). Protecção climática. Serviços (WC acessível) visíveis. Tempo estimado de percurso. Consistência de sinalização."
+      },
+      {
+        id: 16,
+        emoji: "👨‍🦽",
+        name: "Atleta paralímpico em cadeira de rodas de competição (20-35 anos)",
+        category: "Movilidade + Desportiva",
+        howPerceives: "Cadeira leve e rápida mas menos estável. Grande velocidade. Mãos fortes mas sujas após uso. Necessita zona de lavagem. Cadeira cara e delicada. Preocupação com danos em pavimento irregular. Postura muito inclinada (visão baixa).",
+        whereFails: "Falha em Orientation quando sinalização está muito alta. Em Route Decision ante pavimento inadequado para cadeira desportiva. Em Route Monitoring se obstáculos baixos (não visíveis em postura inclinada). Em Destination Recognition se acesso requer manobra lenta/cuidadosa.",
+        whatToObserve: "Pavimento de qualidade (liso, firme). Largura generosa para velocidade. Sinalização baixa e frontal. Zonas de lavagem. Protecção de cadeira em armazenamento. Evitar degraus, grelhas. Curvas suaves. Espaços de travagem."
+      },
+      {
+        id: 17,
+        emoji: "👨‍👩‍👧‍👦",
+        name: "Família com criança autista e avós (3 gerações, necessidades múltiplas)",
+        category: "Grupo Multigeracional",
+        howPerceives: "Criança com TEA (sobrecarga sensorial). Avós com mobilidade reduzida. Pais com atenção dividida. Velocidades diferentes de marcha. Necessidades de WC/descanso assíncronas. Criança pode fugir se assustada. Stress grupal elevado.",
+        whereFails: "Falha em Orientation quando informação não é clara para todos níveis. Em Route Decision se opções são muitas ou ambíguas (debate familiar). Em Route Monitoring se não há zonas calmas para reagrupar. Em Destination Recognition se ambiente é caótico (criança entra em crise).",
+        whatToObserve: "Sinalização clara e multimodal. Zonas calmas. Assentos frequentes. WCs familiares. Evitar ruído/luzes. Rotas directas. Largura para grupo. Elementos visuais tranquilizadores. Mapas simples. Segurança para criança."
+      },
+      {
+        id: 18,
+        emoji: "🚶",
+        name: "Pessoa com prótese de perna (30-50 anos, amputação transfemoral)",
+        category: "Movilidad",
+        howPerceives: "Marcha possível mas com fadiga. Equilíbrio reduzido. Dificuldade em terreno irregular. Escadas são desafio (descer pior que subir). Pode usar bengala de apoio. Prótese pode causar dor após uso prolongado. Velocidade reduzida.",
+        whereFails: "Falha em Orientation quando não há sinalização de rotas suaves. Em Route Decision ante escadas sem alternativa. Em Route Monitoring em pavimento irregular ou com obstáculos. Em Destination Recognition se entrada tem degraus ou requer equilíbrio.",
+        whatToObserve: "Rampas e elevadores. Pavimento muito liso. Corrimões. Assentos frequentes. Evitar escadas longas. Sinalização de rotas acessíveis. Largura adequada. Evitar desníveis súbitos."
+      },
+      {
+        id: 19,
+        emoji: "🧓",
+        name: "Adulto mayor con deterioro cognitivo leve (MCI, 65-80 años, visita campus)",
+        category: "Cognitivo + Edad",
+        howPerceives: "Memoria de trabajo reducida - no retiene múltiples instrucciones. Memoria espacial disminuida - dificultad para crear mapas mentales nuevos. Atención dividida limitada - no procesa múltiples estímulos visuales simultáneamente. Velocidad de procesamiento reducida - necesita más tiempo para leer y decidir. Función ejecutiva alterada - planificación de rutas complejas es difícil. Presbicia y posibles cataratas - necesita alto contraste y tipografía grande. Menor resistencia física y equilibrio frágil.",
+        whereFails: "Falla en Orientation cuando no hay diferenciación visual clara entre zonas (todo se ve igual). En Route Decision ante múltiples opciones sin jerarquía clara o cuando nomenclatura es abstracta (códigos alfanuméricos). En Route Monitoring cuando no hay confirmaciones frecuentes de 'vas bien' o cuando el entorno es monótono sin landmarks. En Destination Recognition cuando señalización es pequeña, de bajo contraste, o requiere memoria de instrucciones previas. El estrés ambiental (calor, ruido) deteriora aún más su función cognitiva.",
+        whatToObserve: "Diferenciación cromática y material entre zonas (cada área debe ser visualmente única). Landmarks tridimensionales memorables (esculturas, elementos arquitectónicos distintivos). Nomenclatura funcional vs abstracta ('Facultad de Letras' vs 'Edificio C2'). Tamaño de tipografía (mínimo 15-20cm) y contraste (ratio 7:1). Confirmación continua de ruta cada 50-100 metros. Disponibilidad de zonas de descanso con información integrada. Simplicidad de decisiones (máximo 2-3 opciones por punto). Protección contra estrés ambiental (sombra, asientos, señalización clara de distancias). Patrón espacial claro (cuadrícula o radial, no orgánico caótico)."
+      },
+      {
+        id: 20,
+        emoji: "📚",
+        name: "Estudiante con dislexia severa (20 años, universitario internacional)",
+        category: "Cognitivo + Idioma",
+        howPerceives: "Dificultad severa para procesar texto escrito rápidamente. No puede depender de leer señales para orientarse. Funciona mejor con información visual no textual (colores, formas, pictogramas). Puede invertir o confundir letras/números similares. Procesamiento de lectura lento causa fatiga cognitiva. Prefiere referencias visuales memorables que no requieran leer.",
+        whereFails: "Falla en Orientation cuando toda información es textual sin pictogramas. En Route Decision cuando señales dependen de leer nombres de edificios/destinos. En Route Monitoring cuando confirmación de ruta es solo textual. En Destination Recognition cuando identificación del lugar es solo por nombre escrito. Exclusión funcional en campus que asume capacidad lectora rápida.",
+        whatToObserve: "Señalización pictográfica universal (iconos, no texto). Códigos de color consistentes por zona/función. Landmarks visuales únicos y tridimensionales. Tipografía sans-serif extra grande si hay texto (mínimo 8cm altura). Diferenciación por forma, textura y color en lugar de texto. Referencias visuales que se puedan 'leer' sin leer palabras. Mapas táctiles o con relieves. Ausencia de dependencia de nomenclatura textual compleja."
+      },
+      {
+        id: 21,
+        emoji: "🧑‍💻",
+        name: "Trabalhador com PHDA (25-40 anos, dificuldade atencional)",
+        category: "Cognitivo",
+        howPerceives: "Atenção facilmente distraída. Dificuldade em focar em sinalização com múltiplos elementos. Processa informação melhor quando é simples e directa. Impulsividade pode levar a decisões rápidas erradas. Hiperatividade mental - pensa em várias coisas simultaneamente.",
+        whereFails: "Falha em Orientation quando há excesso de informação visual. Em Route Decision ante sinalização complexa ou ambígua. Em Route Monitoring quando ambiente é cheio de distrações. Em Destination Recognition se informação não é imediata e clara.",
+        whatToObserve: "Sinalização minimalista e directa. Evitar poluição visual. Hierarquia clara de informação. Pictogramas simples. Código de cores forte. Evitar detalhes desnecessários. Informação 'escanável' rapidamente."
+      },
+      {
+        id: 22,
+        emoji: "🧑‍🎤",
+        name: "Pessoa com ansiedade social severa (18-30 anos)",
+        category: "Saúde Mental",
+        howPerceives: "Evita perguntar a outras pessoas. Prefere auto-navegação com mapas/apps. Multidões causam stress extremo. Necessita rotas previsíveis. Medo de parecer perdido. Ataques de pânico em espaços confusos/lotados.",
+        whereFails: "Falha em Orientation quando única opção é perguntar a alguém. Em Route Decision se ambiente requer interação social. Em Route Monitoring em multidões. Em Destination Recognition se precisa pedir ajuda. Stress impede pensamento claro.",
+        whatToObserve: "Sinalização auto-suficiente (não depende de perguntar). Mapas claros e acessíveis. Rotas alternativas menos movimentadas. Apps/QR codes para informação. Evitar necessidade de interação. Zonas calmas visíveis."
+      },
+      {
+        id: 23,
+        emoji: "🏥",
+        name: "Paciente em quimioterapia (40-60 anos, fadiga extrema, imunossuprimido)",
+        category: "Saúde + Movilidad",
+        howPerceives: "Fadiga extrema e constante. Náuseas frequentes. Sistema imunitário comprometido (evita aglomerações). Pode usar máscara. Desorientação por medicação. Necessidade frequente de WC e descanso. Dificuldade de concentração.",
+        whereFails: "Falha em Orientation quando não há WCs/descansos próximos sinalizados. Em Route Decision ante rotas longas. Em Route Monitoring em aglomerações (risco infeccioso). Em Destination Recognition se requer esforço físico.",
+        whatToObserve: "WCs próximos. Assentos muito frequentes. Rotas curtas e directas. Elevadores. Evitar aglomerações. Ventilação. Protecção climática. Sinalização de distâncias. Acesso rápido a ajuda."
+      },
+      {
+        id: 24,
+        emoji: "🎮",
+        name: "Jovem com síndrome de Down (16-25 anos, acompanhado mas semi-independente)",
+        category: "Cognitivo + Desenvolvimento",
+        howPerceives: "Processamento de informação mais lento. Prefere pictogramas e imagens. Memória de trabalho limitada. Pode ler mas com dificuldade. Segue bem rotas habituais mas confunde-se com novidades. Sociável mas pode confiar demais em estranhos.",
+        whereFails: "Falha em Orientation quando informação é complexa ou textual. Em Route Decision ante opções múltiplas. Em Route Monitoring se ambiente muda (obra, multidão). Em Destination Recognition se sinalização não é visual e clara.",
+        whatToObserve: "Pictogramas claros e coloridos. Sinalização simples. Mapas visuais. Rotas directas. Evitar decisões complexas. Landmarks memoráveis. Código de cores. Informação repetida. Segurança (evitar áreas perigosas)."
+      },
+      {
+        id: 25,
+        emoji: "🧕",
+        name: "Mulher imigrante (30-45 anos, analfabeta, cultura diferente)",
+        category: "Idioma + Cultura + Literacia",
+        howPerceives: "Não sabe ler em nenhum idioma. Depende 100% de pictogramas e perguntar. Códigos culturais visuais podem ser diferentes (cores, símbolos). Pode ter medo/vergonha de perguntar. Memoriza rotas por landmarks visuais.",
+        whereFails: "Falha em Orientation quando toda informação é textual. Em Route Decision se pictogramas não são universais. Em Route Monitoring se não há landmarks visuais. Em Destination Recognition se nome é só escrito. Exclusão total em sistemas texto-dependentes.",
+        whatToObserve: "Pictogramas universais (ISO, sem texto). Código de cores intuitivo. Landmarks visuais fortes. Fotografias de destinos. Mapas ilustrados. Evitar dependência de literacia. Símbolos culturalmente neutros. Setas claras."
+      },
+      {
+        id: 26,
+        emoji: "🧑‍🔧",
+        name: "Trabalhador manual com artrite reumatóide (45-60 anos, mãos e joelhos afetados)",
+        category: "Movilidade + Dor",
+        howPerceives: "Dor crónica nas mãos (dificuldade em segurar mapas, abrir portas). Joelhos rígidos (escadas difíceis). Fadiga. Mobilidade reduzida de manhã (rigidez matinal). Pode usar bengala.",
+        whereFails: "Falha em Orientation quando mapas/painéis requerem manipulação. Em Route Decision ante escadas. Em Route Monitoring se portas são pesadas. Em Destination Recognition se entrada requer força/destreza manual.",
+        whatToObserve: "Portas automáticas ou leves. Rampas/elevadores. Sinalização fixa (não mapas móveis). Painéis interativos de toque suave. Evitar escadas. Assentos. Corrimões. Maçanetas de alavanca (não redondas)."
+      },
+      {
+        id: 27,
+        emoji: "🎭",
+        name: "Pessoa com prosopagnosia (cegueira facial, 25-50 anos)",
+        category: "Cognitivo + Perceptivo",
+        howPerceives: "Não reconhece rostos (nem familiares). Identifica pessoas por voz, roupa, contexto. Desorientação social constante. Em navegação, não pode 'seguir aquela pessoa' ou perguntar 'ao senhor de barba'. Landmarks humanos não funcionam.",
+        whereFails: "Falha em Orientation quando indicações envolvem pessoas ('siga o guarda', 'pergunte ao staff'). Em Route Decision se sinalização usa rostos/pessoas como referência. Em Route Monitoring se precisa reconhecer alguém. Em Destination Recognition se identificação é por pessoa.",
+        whatToObserve: "Sinalização que não depende de reconhecer pessoas. Uniformes muito distintivos (cor, padrão). Badges grandes. Evitar 'procure o staff'. Mapas auto-suficientes. Informação visual não-humana."
+      },
+      {
+        id: 28,
+        emoji: "🧑‍🦲",
+        name: "Pessoa em recuperação de AVC (50-70 anos, hemiparesia direita)",
+        category: "Movilidade + Cognitivo",
+        howPerceives: "Lado direito do corpo fraco/paralisado. Usa bengala. Visão pode ser afetada (hemianopsia - não vê metade do campo visual). Processamento espacial alterado. Fadiga cognitiva. Memória de curto prazo afetada. Marcha lenta e instável.",
+        whereFails: "Falha em Orientation quando sinalização está só no lado não-visível. Em Route Decision ante escadas ou múltiplas opções (sobrecarga cognitiva). Em Route Monitoring se terreno irregular. Em Destination Recognition se sinalização é complexa ou requer memória.",
+        whatToObserve: "Sinalização bilateral (ambos lados). Rampas/elevadores. Corrimões em ambos lados. Pavimento muito liso. Assentos frequentes. Informação simples e repetida. Evitar decisões complexas. Confirmações frequentes de ruta."
+      },
+      {
+        id: 29,
+        emoji: "👁️‍🗨️",
+        name: "Pessoa com daltonismo severo (protanopia, 20-60 anos)",
+        category: "Visual + Cor",
+        howPerceives: "Não distingue vermelho/verde (vê como castanho/amarelo). Códigos de cores vermelho-verde são inúteis. Semáforos confusos. Mapas coloridos mal desenhados são ilegíveis. Depende de contraste e forma, não cor.",
+        whereFails: "Falha em Orientation quando diferenciação de zonas é só por cor (vermelho vs verde). Em Route Decision se sinalização usa código vermelho=proibido verde=permitido sem forma. Em Route Monitoring se confirmação é cromática. Em Destination Recognition se identificação é só por cor.",
+        whatToObserve: "Código de formas + cores (não só cores). Contraste luminoso forte. Padrões visuais (listras, pontos) além de cores. Texto/pictogramas claros. Evitar dependência de vermelho/verde. Usar azul/amarelo. Formas distintas."
+      },
+      {
+        id: 30,
+        emoji: "🧑‍⚕️",
+        name: "Profissional de saúde em turno de 24h (30-50 anos, privação de sono extrema)",
+        category: "Cognitivo + Fadiga",
+        howPerceives: "Fadiga cognitiva extrema (equivalente a embriaguez). Atenção reduzida. Tempo de reação lento. Memória de trabalho comprometida. Irritabilidade. Visão pode ficar turva. Desorientação temporal (não sabe se é dia/noite).",
+        whereFails: "Falha em Orientation quando informação é complexa. Em Route Decision ante múltiplas opções (não consegue processar). Em Route Monitoring se ambiente é monótono (adormecer navegando). Em Destination Recognition se sinalização requer atenção sustentada.",
+        whatToObserve: "Sinalização extremamente clara e simples. Rotas óbvias e directas. Evitar decisões complexas. Confirmações frequentes. Contraste forte para manter atenção. Evitar ambiente monótono. Iluminação forte. Setas grandes."
+      }
+    ];
+
+    // ========================================
+    // TRADUÇÕES (PT / ES / EN)
+    // ========================================
+    const TRANSLATIONS = {
+      pt: {
+        // Login Screen
+        title: "WayWalker v2.0",
+        subtitle: "Análise de Wayfinding com Perfis de Empatia",
+        btnStart: "▶️ Iniciar Nova Análise",
+        btnSettings: "⚙️ Configurações",
+        
+        // Setup Screen
+        setupTitle: "📝 Configuração da Análise",
+        labelProfile: "Perfil de Empatia",
+        labelSpace: "Nome do Espaço",
+        placeholderSpace: "Ex: Facultad de Letras",
+        labelLocation: "Localização",
+        placeholderLocation: "Ex: Lisboa, Portugal",
+        labelSpaceType: "Tipo de Espaço",
+        btnViewProfile: "👤 Ver Ficha do Perfil",
+        btnBack: "⬅️ Voltar",
+        
+        // Profile Screen
+        howPerceives: "👁️ COMO PERCEBE",
+        whereFails: "❌ ONDE FALLA",
+        whatToObserve: "🔍 O QUE OBSERVAR",
+        btnStartRecording: "🎥 Iniciar Gravação",
+        
+        // Recording Screen
+        recordingTitle: "🎥 Gravação em Curso",
+        labelDuration: "⏱️ DURAÇÃO",
+        labelGPS: "📍 GPS PONTOS",
+        labelTranscription: "📝 Transcrição (ao vivo)",
+        transcriptionWaiting: "Aguardando narração...",
+        btnStopRecording: "⏹️ Parar Gravação",
+        
+        // Success Screen
+        successTitle: "✅ Análise Concluída!",
+        successSubtitle: "Gravação Concluída com Sucesso!",
+        labelProfileSuccess: "Perfil",
+        labelSpaceSuccess: "Espaço",
+        labelLocationSuccess: "Localização",
+        labelTypeSuccess: "Tipo",
+        labelDurationSuccess: "Duração",
+        labelGPSSuccess: "Pontos GPS",
+        labelTranscriptionSuccess: "Transcrição",
+        transcriptionCaptured: "Capturada",
+        transcriptionNA: "N/A (processar no desktop)",
+        btnExportJSON: "💾 Export JSON",
+        btnDownloadVideo: "🎥 Download Vídeo",
+        btnDownloadKML: "🗺️ Download KML",
+        btnNewAnalysis: "➕ Nova Análise",
+        
+        // Settings Screen
+        settingsTitle: "⚙️ Configurações",
+        settingsSystemInfo: "📱 Informação do Sistema",
+        settingsVersion: "Versão",
+        settingsBrowser: "Browser",
+        settingsPlatform: "Plataforma",
+        settingsLanguage: "🌍 Idioma / Language",
+        settingsPermissions: "⚠️ Permissões Necessárias",
+        settingsAbout: "ℹ️ Sobre",
+        settingsAboutText: "WayWalker é uma ferramenta para análise de wayfinding com perfis de empatia. Desenvolvido para investigação em acessibilidade espacial.",
+        
+        // Space Types
+        spaceTypes: {
+          campus: "Campus Universitário",
+          hospital: "Hospital",
+          mall: "Centro Comercial",
+          airport: "Aeroporto",
+          metro: "Estação de Metro",
+          museum: "Museu",
+          park: "Parque",
+          building: "Edifício Público",
+          other: "Outro"
+        },
+        
+        // Alerts
+        alertFillSpace: "Por favor, preencha o nome do espaço.",
+        alertCameraError: "Erro ao aceder câmera/microfone. Verifique permissões.",
+        alertNoVideo: "Vídeo não disponível.",
+        alertNoGPS: "Sem dados GPS para exportar.",
+        alertConfirmReset: "Tens a certeza? Todos os dados não guardados serão perdidos.",
+        
+        // Export status
+        exporting: "⏳ A exportar...",
+        exportedJSON: "✅ JSON Guardado!",
+        exportedVideo: "✅ Vídeo Guardado!",
+        exportedKML: "✅ KML Guardado!"
+      },
+      
+      es: {
+        // Login Screen
+        title: "WayWalker v2.0",
+        subtitle: "Análisis de Wayfinding con Perfiles de Empatía",
+        btnStart: "▶️ Iniciar Nuevo Análisis",
+        btnSettings: "⚙️ Configuración",
+        
+        // Setup Screen
+        setupTitle: "📝 Configuración del Análisis",
+        labelProfile: "Perfil de Empatía",
+        labelSpace: "Nombre del Espacio",
+        placeholderSpace: "Ej: Facultad de Letras",
+        labelLocation: "Ubicación",
+        placeholderLocation: "Ej: Lisboa, Portugal",
+        labelSpaceType: "Tipo de Espacio",
+        btnViewProfile: "👤 Ver Ficha del Perfil",
+        btnBack: "⬅️ Volver",
+        
+        // Profile Screen
+        howPerceives: "👁️ CÓMO PERCIBE",
+        whereFails: "❌ DÓNDE FALLA",
+        whatToObserve: "🔍 QUÉ OBSERVAR",
+        btnStartRecording: "🎥 Iniciar Grabación",
+        
+        // Recording Screen
+        recordingTitle: "🎥 Grabación en Curso",
+        labelDuration: "⏱️ DURACIÓN",
+        labelGPS: "📍 PUNTOS GPS",
+        labelTranscription: "📝 Transcripción (en vivo)",
+        transcriptionWaiting: "Esperando narración...",
+        btnStopRecording: "⏹️ Detener Grabación",
+        
+        // Success Screen
+        successTitle: "✅ ¡Análisis Completado!",
+        successSubtitle: "¡Grabación Completada con Éxito!",
+        labelProfileSuccess: "Perfil",
+        labelSpaceSuccess: "Espacio",
+        labelLocationSuccess: "Ubicación",
+        labelTypeSuccess: "Tipo",
+        labelDurationSuccess: "Duración",
+        labelGPSSuccess: "Puntos GPS",
+        labelTranscriptionSuccess: "Transcripción",
+        transcriptionCaptured: "Capturada",
+        transcriptionNA: "N/A (procesar en escritorio)",
+        btnExportJSON: "💾 Exportar JSON",
+        btnDownloadVideo: "🎥 Descargar Video",
+        btnDownloadKML: "🗺️ Descargar KML",
+        btnNewAnalysis: "➕ Nuevo Análisis",
+        
+        // Settings Screen
+        settingsTitle: "⚙️ Configuración",
+        settingsSystemInfo: "📱 Información del Sistema",
+        settingsVersion: "Versión",
+        settingsBrowser: "Navegador",
+        settingsPlatform: "Plataforma",
+        settingsLanguage: "🌍 Idioma / Language",
+        settingsPermissions: "⚠️ Permisos Necesarios",
+        settingsAbout: "ℹ️ Acerca de",
+        settingsAboutText: "WayWalker es una herramienta para análisis de wayfinding con perfiles de empatía. Desarrollado para investigación en accesibilidad espacial.",
+        
+        // Space Types
+        spaceTypes: {
+          campus: "Campus Universitario",
+          hospital: "Hospital",
+          mall: "Centro Comercial",
+          airport: "Aeropuerto",
+          metro: "Estación de Metro",
+          museum: "Museo",
+          park: "Parque",
+          building: "Edificio Público",
+          other: "Otro"
+        },
+        
+        // Alerts
+        alertFillSpace: "Por favor, complete el nombre del espacio.",
+        alertCameraError: "Error al acceder cámara/micrófono. Verifique permisos.",
+        alertNoVideo: "Video no disponible.",
+        alertNoGPS: "Sin datos GPS para exportar.",
+        alertConfirmReset: "¿Está seguro? Todos los datos no guardados se perderán.",
+        
+        // Export status
+        exporting: "⏳ Exportando...",
+        exportedJSON: "✅ ¡JSON Guardado!",
+        exportedVideo: "✅ ¡Video Guardado!",
+        exportedKML: "✅ ¡KML Guardado!"
+      },
+      
+      en: {
+        // Login Screen
+        title: "WayWalker v2.0",
+        subtitle: "Wayfinding Analysis with Empathy Profiles",
+        btnStart: "▶️ Start New Analysis",
+        btnSettings: "⚙️ Settings",
+        
+        // Setup Screen
+        setupTitle: "📝 Analysis Setup",
+        labelProfile: "Empathy Profile",
+        labelSpace: "Space Name",
+        placeholderSpace: "Ex: Faculty of Arts",
+        labelLocation: "Location",
+        placeholderLocation: "Ex: Lisbon, Portugal",
+        labelSpaceType: "Space Type",
+        btnViewProfile: "👤 View Profile Card",
+        btnBack: "⬅️ Back",
+        
+        // Profile Screen
+        howPerceives: "👁️ HOW PERCEIVES",
+        whereFails: "❌ WHERE FAILS",
+        whatToObserve: "🔍 WHAT TO OBSERVE",
+        btnStartRecording: "🎥 Start Recording",
+        
+        // Recording Screen
+        recordingTitle: "🎥 Recording in Progress",
+        labelDuration: "⏱️ DURATION",
+        labelGPS: "📍 GPS POINTS",
+        labelTranscription: "📝 Transcription (live)",
+        transcriptionWaiting: "Waiting for narration...",
+        btnStopRecording: "⏹️ Stop Recording",
+        
+        // Success Screen
+        successTitle: "✅ Analysis Completed!",
+        successSubtitle: "Recording Completed Successfully!",
+        labelProfileSuccess: "Profile",
+        labelSpaceSuccess: "Space",
+        labelLocationSuccess: "Location",
+        labelTypeSuccess: "Type",
+        labelDurationSuccess: "Duration",
+        labelGPSSuccess: "GPS Points",
+        labelTranscriptionSuccess: "Transcription",
+        transcriptionCaptured: "Captured",
+        transcriptionNA: "N/A (process on desktop)",
+        btnExportJSON: "💾 Export JSON",
+        btnDownloadVideo: "🎥 Download Video",
+        btnDownloadKML: "🗺️ Download KML",
+        btnNewAnalysis: "➕ New Analysis",
+        
+        // Settings Screen
+        settingsTitle: "⚙️ Settings",
+        settingsSystemInfo: "📱 System Information",
+        settingsVersion: "Version",
+        settingsBrowser: "Browser",
+        settingsPlatform: "Platform",
+        settingsLanguage: "🌍 Language / Idioma",
+        settingsPermissions: "⚠️ Required Permissions",
+        settingsAbout: "ℹ️ About",
+        settingsAboutText: "WayWalker is a tool for wayfinding analysis with empathy profiles. Developed for spatial accessibility research.",
+        
+        // Space Types
+        spaceTypes: {
+          campus: "University Campus",
+          hospital: "Hospital",
+          mall: "Shopping Mall",
+          airport: "Airport",
+          metro: "Metro Station",
+          museum: "Museum",
+          park: "Park",
+          building: "Public Building",
+          other: "Other"
+        },
+        
+        // Alerts
+        alertFillSpace: "Please fill in the space name.",
+        alertCameraError: "Error accessing camera/microphone. Check permissions.",
+        alertNoVideo: "Video not available.",
+        alertNoGPS: "No GPS data to export.",
+        alertConfirmReset: "Are you sure? All unsaved data will be lost.",
+        
+        // Export status
+        exporting: "⏳ Exporting...",
+        exportedJSON: "✅ JSON Saved!",
+        exportedVideo: "✅ Video Saved!",
+        exportedKML: "✅ KML Saved!"
+      }
+    };
+
+    // ========================================
+    // FUNÇÃO DE ATUALIZAÇÃO DE IDIOMA
+    // ========================================
+    function updateLanguage(lang) {
+      currentLanguage = lang;
+      const t = TRANSLATIONS[lang];
+      
+      // Salvar preferência
+      localStorage.setItem('waywalker_language', lang);
+      
+      // Login Screen
+      if (document.getElementById('text-title')) {
+        document.getElementById('text-title').textContent = t.title;
+      }
+      if (document.getElementById('text-subtitle')) {
+        document.getElementById('text-subtitle').textContent = t.subtitle;
+      }
+      if (document.getElementById('btn-start')) {
+        document.getElementById('btn-start').textContent = t.btnStart;
+      }
+      if (document.getElementById('btn-settings')) {
+        document.getElementById('btn-settings').textContent = t.btnSettings;
+      }
+      
+      // Setup Screen
+      if (document.getElementById('text-setup-title')) {
+        document.getElementById('text-setup-title').textContent = t.setupTitle;
+      }
+      if (document.getElementById('text-label-profile')) {
+        document.getElementById('text-label-profile').textContent = t.labelProfile;
+      }
+      if (document.getElementById('text-label-space')) {
+        document.getElementById('text-label-space').textContent = t.labelSpace;
+      }
+      if (document.getElementById('input-space')) {
+        document.getElementById('input-space').placeholder = t.placeholderSpace;
+      }
+      if (document.getElementById('text-label-location')) {
+        document.getElementById('text-label-location').textContent = t.labelLocation;
+      }
+      if (document.getElementById('input-location')) {
+        document.getElementById('input-location').placeholder = t.placeholderLocation;
+      }
+      if (document.getElementById('text-label-space-type')) {
+        document.getElementById('text-label-space-type').textContent = t.labelSpaceType;
+      }
+      if (document.getElementById('btn-view-profile')) {
+        document.getElementById('btn-view-profile').textContent = t.btnViewProfile;
+      }
+      if (document.getElementById('btn-back-setup')) {
+        document.getElementById('btn-back-setup').textContent = t.btnBack;
+      }
+      
+      // Atualizar Space Types
+      updateSpaceTypes();
+      
+      // Recarregar perfis com idioma correto
+      populateProfiles();
+    }
+    
+    // ========================================
+    // ATUALIZAR TIPOS DE ESPAÇO
+    // ========================================
+    function updateSpaceTypes() {
+      const select = document.getElementById('input-space-type');
+      if (!select) return;
+      
+      const t = TRANSLATIONS[currentLanguage].spaceTypes;
+      const currentValue = select.value;
+      
+      select.innerHTML = '';
+      Object.keys(t).forEach(key => {
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = t[key];
+        select.appendChild(option);
+      });
+      
+      // Restaurar valor selecionado
+      if (currentValue) {
+        select.value = currentValue;
+      }
+    }
+
+    // ========================================
+    // ESTADO GLOBAL
+    // ========================================
+    let currentScreen = 'login';
+    let currentLanguage = 'pt'; // pt, es, en
+    let selectedProfile = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let videoBlob = null;
+    let gpsPoints = [];
+    let gpsInterval = null;
+    let timerInterval = null;
+    let startTime = null;
+    let recognition = null;
+    let transcriptionText = '';
+    let isExporting = false; // Proteger contra cliques acidentais
+
+    // Configuração da análise
+    let config = {
+      profileId: null,
+      spaceName: '',
+      location: '',
+      spaceType: '',
+      analysisNumber: null // Número único desta análise
+    };
+    
+    // ========================================
+    // SISTEMA DE NUMERAÇÃO DE ANÁLISES
+    // ========================================
+    function getNextAnalysisNumber() {
+      let counter = parseInt(localStorage.getItem('waywalker_analysis_counter') || '0');
+      counter++;
+      localStorage.setItem('waywalker_analysis_counter', counter.toString());
+      return counter;
+    }
+    
+    function formatAnalysisNumber(num) {
+      return String(num).padStart(3, '0'); // 001, 002, 003...
+    }
+
+    // ========================================
+    // NAVEGAÇÃO ENTRE SCREENS
+    // ========================================
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-' + screenId).classList.add('active');
+      currentScreen = screenId;
+    }
+
+    // ========================================
+    // TRADUÇÕES DOS PERFIS (nomes curtos para select)
+    // ========================================
+    const PROFILE_NAMES = {
+      pt: [
+        "Pessoa ciega completa (adulto, 30-50 anos, uso de bastão)",
+        "Pessoa com baixa visão (visão periférica, 20-60 anos)",
+        "Pessoa surda profunda (adulto, 25-55 anos, língua de sinais nativa)",
+        "Usuário de cadeira de rodas manual (adulto, 20-50 anos, paraplégico)",
+        "Usuário de cadeira de rodas eléctrica (adulto, 30-65 anos, tetraplégico)",
+        "Pessoa idosa com andarilho (70-85 anos, osteoartrite)",
+        "Pessoa com transtorno do espectro autista (TEA nível 2, adulto jovem)",
+        "Pai/mãe com carrinho de bebé duplo (30-40 anos)",
+        "Turista internacional (25-35 anos, não fala idioma local, primeira visita)",
+        "Corredor/desportista com deficiência visual parcial (20-40 anos, retinose pigmentária)",
+        "Viajante com bagagem pesada (40-60 anos, mala grande + mochila)",
+        "Criança de 6-8 anos (altura ~120cm, primeira vez no espaço)",
+        "Grávida no 8º mês (30-35 anos, mobilidade reduzida)",
+        "Pessoa com surdocegueira parcial (adulto, 40-60 anos)",
+        "Executivo em cadeira de rodas (35-50 anos, reunião importante, stress temporal)",
+        "Atleta paralímpico em cadeira de rodas de competição (20-35 anos)",
+        "Família com criança autista e avós (3 gerações, necessidades múltiplas)",
+        "Pessoa com prótese de perna (30-50 anos, amputação transfemoral)",
+        "Adulto maior com deterioro cognitivo leve (MCI, 65-80 años, visita campus)",
+        "Estudiante con dislexia severa (20 años, universitario internacional)",
+        "Trabalhador com PHDA (25-40 anos, dificuldade atencional)",
+        "Pessoa com ansiedade social severa (18-30 anos)",
+        "Paciente em quimioterapia (40-60 anos, fadiga extrema, imunossuprimido)",
+        "Jovem com síndrome de Down (16-25 anos, acompanhado mas semi-independente)",
+        "Mulher imigrante (30-45 anos, analfabeta, cultura diferente)",
+        "Trabalhador manual com artrite reumatóide (45-60 anos, mãos e joelhos afetados)",
+        "Pessoa com prosopagnosia (cegueira facial, 25-50 anos)",
+        "Pessoa em recuperação de AVC (50-70 anos, hemiparesia direita)",
+        "Pessoa com daltonismo severo (protanopia, 20-60 anos)",
+        "Profissional de saúde em turno de 24h (30-50 anos, privação de sono extrema)"
+      ],
+      es: [
+        "Persona ciega completa (adulto, 30-50 años, uso de bastón)",
+        "Persona con baja visión (visión periférica, 20-60 años)",
+        "Persona sorda profunda (adulto, 25-55 años, lengua de señas nativa)",
+        "Usuario de silla de ruedas manual (adulto, 20-50 años, parapléjico)",
+        "Usuario de silla de ruedas eléctrica (adulto, 30-65 años, tetrapléjico)",
+        "Persona mayor con andador (70-85 años, osteoartritis)",
+        "Persona con trastorno del espectro autista (TEA nivel 2, adulto joven)",
+        "Padre/madre con cochecito de bebé doble (30-40 años)",
+        "Turista internacional (25-35 años, no habla idioma local, primera visita)",
+        "Corredor/deportista con discapacidad visual parcial (20-40 años, retinosis pigmentaria)",
+        "Viajante con equipaje pesado (40-60 años, maleta grande + mochila)",
+        "Niño de 6-8 años (altura ~120cm, primera vez en el espacio)",
+        "Embarazada en el 8º mes (30-35 años, movilidad reducida)",
+        "Persona con sordoceguera parcial (adulto, 40-60 años)",
+        "Ejecutivo en silla de ruedas (35-50 años, reunión importante, estrés temporal)",
+        "Atleta paralímpico en silla de ruedas de competición (20-35 años)",
+        "Familia con niño autista y abuelos (3 generaciones, necesidades múltiples)",
+        "Persona con prótesis de pierna (30-50 años, amputación transfemoral)",
+        "Adulto mayor con deterioro cognitivo leve (MCI, 65-80 años, visita campus)",
+        "Estudiante con dislexia severa (20 años, universitario internacional)",
+        "Trabajador con TDAH (25-40 años, dificultad atencional)",
+        "Persona con ansiedad social severa (18-30 años)",
+        "Paciente en quimioterapia (40-60 años, fatiga extrema, inmunodeprimido)",
+        "Joven con síndrome de Down (16-25 años, acompañado pero semi-independiente)",
+        "Mujer inmigrante (30-45 años, analfabeta, cultura diferente)",
+        "Trabajador manual con artritis reumatoide (45-60 años, manos y rodillas afectadas)",
+        "Persona con prosopagnosia (ceguera facial, 25-50 años)",
+        "Persona en recuperación de ACV (50-70 años, hemiparesia derecha)",
+        "Persona con daltonismo severo (protanopia, 20-60 años)",
+        "Profesional de salud en turno de 24h (30-50 años, privación de sueño extrema)"
+      ],
+      en: [
+        "Completely blind person (adult, 30-50 years, cane user)",
+        "Person with low vision (peripheral vision, 20-60 years)",
+        "Profoundly deaf person (adult, 25-55 years, native sign language)",
+        "Manual wheelchair user (adult, 20-50 years, paraplegic)",
+        "Electric wheelchair user (adult, 30-65 years, tetraplegic)",
+        "Elderly person with walker (70-85 years, osteoarthritis)",
+        "Person with autism spectrum disorder (ASD level 2, young adult)",
+        "Parent with double baby stroller (30-40 years)",
+        "International tourist (25-35 years, doesn't speak local language, first visit)",
+        "Runner/athlete with partial visual impairment (20-40 years, retinitis pigmentosa)",
+        "Traveler with heavy luggage (40-60 years, large suitcase + backpack)",
+        "Child 6-8 years old (height ~120cm, first time in space)",
+        "Pregnant woman in 8th month (30-35 years, reduced mobility)",
+        "Person with partial deafblindness (adult, 40-60 years)",
+        "Executive in wheelchair (35-50 years, important meeting, time stress)",
+        "Paralympic athlete in competition wheelchair (20-35 years)",
+        "Family with autistic child and grandparents (3 generations, multiple needs)",
+        "Person with leg prosthesis (30-50 years, transfemoral amputation)",
+        "Older adult with mild cognitive impairment (MCI, 65-80 years, campus visit)",
+        "Student with severe dyslexia (20 years, international university student)",
+        "Worker with ADHD (25-40 years, attentional difficulty)",
+        "Person with severe social anxiety (18-30 years)",
+        "Patient in chemotherapy (40-60 years, extreme fatigue, immunosuppressed)",
+        "Young person with Down syndrome (16-25 years, accompanied but semi-independent)",
+        "Immigrant woman (30-45 years, illiterate, different culture)",
+        "Manual worker with rheumatoid arthritis (45-60 years, hands and knees affected)",
+        "Person with prosopagnosia (face blindness, 25-50 years)",
+        "Person recovering from stroke (50-70 years, right hemiparesis)",
+        "Person with severe color blindness (protanopia, 20-60 years)",
+        "Healthcare professional on 24h shift (30-50 years, extreme sleep deprivation)"
+      ]
+    };
+
+    // ========================================
+    // POPULAR SELECT DE PERFIS
+    // ========================================
+    function populateProfiles() {
+      const select = document.getElementById('input-profile');
+      const names = PROFILE_NAMES[currentLanguage];
+      
+      select.innerHTML = ''; // Limpar
+      
+      PROFILES.forEach((profile, index) => {
+        const option = document.createElement('option');
+        option.value = profile.id;
+        option.textContent = `${profile.emoji} ${names[index]}`;
+        select.appendChild(option);
+      });
+    }
+
+    // ========================================
+    // MOSTRAR FICHA DE PERFIL
+    // ========================================
+    function showProfileCard() {
+      const profileId = parseInt(document.getElementById('input-profile').value);
+      const profile = PROFILES.find(p => p.id === profileId);
+      
+      if (profile) {
+        selectedProfile = profile;
+        const profileIndex = profileId - 1; // IDs começam em 1
+        const translatedName = PROFILE_NAMES[currentLanguage][profileIndex];
+        
+        document.getElementById('profile-emoji').textContent = profile.emoji;
+        document.getElementById('profile-name').textContent = translatedName;
+        document.getElementById('profile-perceives').textContent = profile.howPerceives;
+        document.getElementById('profile-fails').textContent = profile.whereFails;
+        document.getElementById('profile-observe').textContent = profile.whatToObserve;
+        showScreen('profile');
+      }
+    }
+
+    // ========================================
+    // INICIAR GRAVAÇÃO
+    // ========================================
+    async function startRecording() {
+      // Guardar configuração
+      config.profileId = parseInt(document.getElementById('input-profile').value);
+      config.spaceName = document.getElementById('input-space').value || 'Espaço Sem Nome';
+      config.location = document.getElementById('input-location').value || 'Localização Desconhecida';
+      config.spaceType = document.getElementById('input-space-type').value;
+      config.analysisNumber = getNextAnalysisNumber(); // Número único
+
+      console.log('Iniciando análise #' + config.analysisNumber);
+
+      // Validar
+      if (!config.spaceName.trim()) {
+        alert(TRANSLATIONS[currentLanguage].alertFillSpace);
+        return;
+      }
+
+      try {
+        // Pedir permissões de câmera e microfone
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+          audio: true
+        });
+
+        // Configurar preview
+        const video = document.getElementById('videoPreview');
+        video.srcObject = stream;
+
+        // Configurar MediaRecorder
+        recordedChunks = [];
+        mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'video/webm;codecs=vp8,opus'
+        });
+
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            recordedChunks.push(event.data);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+          stream.getTracks().forEach(track => track.stop());
+        };
+
+        mediaRecorder.start();
+
+        // Iniciar GPS tracking
+        startGPSTracking();
+
+        // Iniciar timer
+        startTimer();
+
+        // Iniciar transcrição (pode falhar - OK)
+        startTranscription();
+
+        // Ir para screen de gravação
+        showScreen('recording');
+
+      } catch (error) {
+        console.error('Erro ao iniciar gravação:', error);
+        alert(TRANSLATIONS[currentLanguage].alertCameraError);
+      }
+    }
+
+    // ========================================
+    // GPS TRACKING
+    // ========================================
+    function startGPSTracking() {
+      gpsPoints = [];
+      let gpsErrorCount = 0;
+
+      gpsInterval = setInterval(() => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            gpsPoints.push({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+              timestamp: Date.now()
+            });
+            document.getElementById('gps-count').textContent = gpsPoints.length;
+            gpsErrorCount = 0; // Reset error count on success
+          },
+          (error) => {
+            console.error('GPS error:', error);
+            gpsErrorCount++;
+            // Se falhar 3 vezes seguidas, alertar
+            if (gpsErrorCount >= 3) {
+              console.warn('GPS não disponível. Verifique permissões de localização.');
+            }
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+      }, 2000); // Cada 2 segundos
+    }
+
+    function stopGPSTracking() {
+      if (gpsInterval) {
+        clearInterval(gpsInterval);
+        gpsInterval = null;
+      }
+    }
+
+    // ========================================
+    // TIMER
+    // ========================================
+    function startTimer() {
+      startTime = Date.now();
+      timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        document.getElementById('timer-display').textContent = 
+          `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function getDuration() {
+      if (!startTime) return 0;
+      return Math.floor((Date.now() - startTime) / 1000);
+    }
+
+    // ========================================
+    // TRANSCRIÇÃO (Web Speech API)
+    // ========================================
+    function startTranscription() {
+      transcriptionText = '';
+      
+      // Verificar suporte
+      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        document.getElementById('transcription-display').textContent = 
+          TRANSLATIONS[currentLanguage].transcriptionNA;
+        return;
+      }
+
+      try {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'pt-PT';
+
+        recognition.onresult = (event) => {
+          let interim = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              transcriptionText += transcript + ' ';
+            } else {
+              interim += transcript;
+            }
+          }
+          document.getElementById('transcription-display').textContent = 
+            transcriptionText + interim;
+        };
+
+        recognition.onerror = (event) => {
+          console.warn('Speech recognition error:', event.error);
+          if (event.error === 'no-speech') {
+            // Ignorar - é normal não haver fala constante
+          }
+        };
+
+        recognition.start();
+      } catch (error) {
+        console.error('Erro ao iniciar transcrição:', error);
+        document.getElementById('transcription-display').textContent = 
+          TRANSLATIONS[currentLanguage].transcriptionNA;
+      }
+    }
+
+    function stopTranscription() {
+      if (recognition) {
+        try {
+          recognition.stop();
+        } catch (error) {
+          console.error('Erro ao parar transcrição:', error);
+        }
+        recognition = null;
+      }
+    }
+
+    // ========================================
+    // PARAR GRAVAÇÃO
+    // ========================================
+    function stopRecording() {
+      // Parar MediaRecorder
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+
+      // Parar GPS
+      stopGPSTracking();
+
+      // Parar Timer
+      stopTimer();
+
+      // Parar Transcrição
+      stopTranscription();
+
+      // Mostrar resumo
+      showSuccessSummary();
+
+      // Ir para screen de sucesso
+      showScreen('success');
+    }
+
+    // ========================================
+    // RESUMO DE SUCESSO
+    // ========================================
+    function showSuccessSummary() {
+      const duration = getDuration();
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+      const analysisNum = formatAnalysisNumber(config.analysisNumber);
+      const t = TRANSLATIONS[currentLanguage];
+
+      const summary = `
+        <h3>✅ ${t.successSubtitle}</h3>
+        <p><strong>📊 ${t.labelProfileSuccess} #${analysisNum}</strong></p>
+        <p><strong>${t.labelProfileSuccess}:</strong> ${selectedProfile.emoji} ${PROFILE_NAMES[currentLanguage][config.profileId - 1]}</p>
+        <p><strong>${t.labelSpaceSuccess}:</strong> ${config.spaceName}</p>
+        <p><strong>${t.labelLocationSuccess}:</strong> ${config.location}</p>
+        <p><strong>${t.labelTypeSuccess}:</strong> ${TRANSLATIONS[currentLanguage].spaceTypes[config.spaceType]}</p>
+        <p><strong>${t.labelDurationSuccess}:</strong> ${minutes}m ${seconds}s</p>
+        <p><strong>${t.labelGPSSuccess}:</strong> ${gpsPoints.length}</p>
+        <p><strong>${t.labelTranscriptionSuccess}:</strong> ${transcriptionText ? t.transcriptionCaptured : t.transcriptionNA}</p>
+      `;
+
+      document.getElementById('success-summary').innerHTML = summary;
+    }
+
+    // ========================================
+    // EXPORTS
+    // ========================================
+    function exportJSON() {
+      if (isExporting) return;
+      isExporting = true;
+      
+      const btn = document.getElementById('btn-export-json');
+      const originalText = btn.textContent;
+      btn.textContent = TRANSLATIONS[currentLanguage].exporting;
+      btn.disabled = true;
+      
+      setTimeout(() => {
+        const data = {
+          metadata: {
+            version: "2.0",
+            exportedAt: new Date().toISOString(),
+            analysisNumber: config.analysisNumber
+          },
+          config: config,
+          recording: {
+            duration: getDuration(),
+            gpsPoints: gpsPoints,
+            transcription: transcriptionText || "N/A",
+            manifesto: null // Será gerado no desktop
+          }
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const date = new Date().toISOString().split('T')[0];
+        const analysisNum = formatAnalysisNumber(config.analysisNumber);
+        const spaceName = config.spaceName.replace(/\s+/g, '_');
+        a.href = url;
+        a.download = `waywalker_${analysisNum}_${spaceName}_${date}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        btn.textContent = TRANSLATIONS[currentLanguage].exportedJSON;
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+          isExporting = false;
+        }, 2000);
+      }, 100);
+    }
+
+    function downloadVideo() {
+      if (isExporting) return;
+      isExporting = true;
+      
+      if (!videoBlob) {
+        alert(TRANSLATIONS[currentLanguage].alertNoVideo);
+        isExporting = false;
+        return;
+      }
+
+      const btn = document.getElementById('btn-download-video');
+      const originalText = btn.textContent;
+      btn.textContent = TRANSLATIONS[currentLanguage].exporting;
+      btn.disabled = true;
+
+      setTimeout(() => {
+        const url = URL.createObjectURL(videoBlob);
+        const a = document.createElement('a');
+        const date = new Date().toISOString().split('T')[0];
+        const analysisNum = formatAnalysisNumber(config.analysisNumber);
+        const spaceName = config.spaceName.replace(/\s+/g, '_');
+        a.href = url;
+        a.download = `waywalker_video_${analysisNum}_${spaceName}_${date}.webm`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        btn.textContent = TRANSLATIONS[currentLanguage].exportedVideo;
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+          isExporting = false;
+        }, 2000);
+      }, 100);
+    }
+
+    function downloadKML() {
+      if (isExporting) return;
+      isExporting = true;
+      
+      if (gpsPoints.length === 0) {
+        alert(TRANSLATIONS[currentLanguage].alertNoGPS);
+        isExporting = false;
+        return;
+      }
+
+      const btn = document.getElementById('btn-download-kml');
+      const originalText = btn.textContent;
+      btn.textContent = TRANSLATIONS[currentLanguage].exporting;
+      btn.disabled = true;
+
+      setTimeout(() => {
+        // Calcular ponto central (primeiro ponto)
+        const firstPoint = gpsPoints[0];
+        const analysisNum = formatAnalysisNumber(config.analysisNumber);
+        const profileName = PROFILE_NAMES[currentLanguage][config.profileId - 1];
+
+        // Preparar coordenadas da linha
+        const coordinates = gpsPoints.map(p => `${p.lng},${p.lat},0`).join('\n        ');
+
+        const kml = `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document>
+  <name>WayWalker #${analysisNum} - ${config.spaceName}</name>
+  
+  <!-- Pin Principal com Metadata -->
+  <Placemark>
+    <name>${selectedProfile.emoji} ${config.spaceName} [#${analysisNum}]</name>
+    <description><![CDATA[
+      <h3>📊 ANÁLISE #${analysisNum}</h3>
+      <h3>PERFIL: ${profileName}</h3>
+      <p><strong>ESPAÇO:</strong> ${config.spaceName}, ${config.location}</p>
+      <p><strong>TIPO:</strong> ${TRANSLATIONS[currentLanguage].spaceTypes[config.spaceType]}</p>
+      <p><strong>DATA:</strong> ${new Date().toISOString()}</p>
+      <p><strong>DURAÇÃO:</strong> ${Math.floor(getDuration() / 60)}m ${getDuration() % 60}s</p>
+      <p><strong>GPS PONTOS:</strong> ${gpsPoints.length}</p>
+      
+      <h4>👁️ COMO PERCEBE:</h4>
+      <p>${selectedProfile.howPerceives}</p>
+      
+      <h4>❌ ONDE FALLA:</h4>
+      <p>${selectedProfile.whereFails}</p>
+      
+      <h4>🔍 O QUE OBSERVAR:</h4>
+      <p>${selectedProfile.whatToObserve}</p>
+    ]]></description>
+    <Point>
+      <coordinates>${firstPoint.lng},${firstPoint.lat},0</coordinates>
+    </Point>
+  </Placemark>
+  
+  <!-- Linha do Percurso -->
+  <Placemark>
+    <name>Percurso #${analysisNum} - ${profileName}</name>
+    <styleUrl>#lineStyle</styleUrl>
+    <LineString>
+      <coordinates>
+        ${coordinates}
+      </coordinates>
+    </LineString>
+  </Placemark>
+  
+  <Style id="lineStyle">
+    <LineStyle>
+      <color>ff6e7eaa</color>
+      <width>4</width>
+    </LineStyle>
+  </Style>
+</Document>
+</kml>`;
+
+        const blob = new Blob([kml], { type: 'application/vnd.google-earth.kml+xml' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const date = new Date().toISOString().split('T')[0];
+        const spaceName = config.spaceName.replace(/\s+/g, '_');
+        a.href = url;
+        a.download = `waywalker_${analysisNum}_${config.profileId}_${spaceName}_${date}.kml`;
+        a.click();
+        URL.revokeObjectURL(url);
+        
+        btn.textContent = TRANSLATIONS[currentLanguage].exportedKML;
+        setTimeout(() => {
+          btn.textContent = originalText;
+          btn.disabled = false;
+          isExporting = false;
+        }, 2000);
+      }, 100);
+    }
+
+    // ========================================
+    // SETTINGS
+    // ========================================
+    function populateSettings() {
+      document.getElementById('browser-info').textContent = navigator.userAgent.includes('Safari') 
+        ? 'Safari' 
+        : navigator.userAgent.includes('Chrome') 
+        ? 'Chrome' 
+        : 'Outro';
+      
+      document.getElementById('platform-info').textContent = navigator.platform;
+    }
+
+    // ========================================
+    // EVENT LISTENERS (iOS-Safe!)
+    // ========================================
+    function setupEventListeners() {
+      // Selector de Idioma
+      document.getElementById('input-language').addEventListener('change', function(e) {
+        updateLanguage(e.target.value);
+      });
+      
+      // SCREEN 1: Login
+      document.getElementById('btn-start').addEventListener('click', function() {
+        showScreen('setup');
+      });
+
+      document.getElementById('btn-settings').addEventListener('click', function() {
+        populateSettings();
+        showScreen('settings');
+      });
+
+      // SCREEN 2: Setup
+      document.getElementById('btn-view-profile').addEventListener('click', function() {
+        showProfileCard();
+      });
+
+      document.getElementById('btn-back-setup').addEventListener('click', function() {
+        showScreen('login');
+      });
+
+      // SCREEN 3: Profile Card
+      document.getElementById('btn-start-recording').addEventListener('click', function() {
+        startRecording();
+      });
+
+      document.getElementById('btn-back-profile').addEventListener('click', function() {
+        showScreen('setup');
+      });
+
+      // SCREEN 4: Recording
+      document.getElementById('btn-stop-recording').addEventListener('click', function() {
+        stopRecording();
+      });
+
+      // SCREEN 5: Success
+      document.getElementById('btn-export-json').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Export JSON clicked');
+        exportJSON();
+      }, { once: false });
+
+      document.getElementById('btn-download-video').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Download Video clicked');
+        downloadVideo();
+      }, { once: false });
+
+      document.getElementById('btn-download-kml').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Download KML clicked');
+        downloadKML();
+      }, { once: false });
+
+      document.getElementById('btn-new-analysis').addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Confirmação antes de resetar
+        if (confirm(TRANSLATIONS[currentLanguage].alertConfirmReset)) {
+          // Reset
+          selectedProfile = null;
+          videoBlob = null;
+          gpsPoints = [];
+          transcriptionText = '';
+          config = { profileId: null, spaceName: '', location: '', spaceType: '', analysisNumber: null };
+          
+          // Limpar inputs
+          document.getElementById('input-space').value = '';
+          document.getElementById('input-location').value = '';
+          
+          showScreen('login');
+        }
+      }, { once: false });
+
+      // SCREEN: Settings
+      document.getElementById('btn-back-settings').addEventListener('click', function() {
+        showScreen('login');
+      });
+    }
+
+    // ========================================
+    // INICIALIZAÇÃO
+    // ========================================
+    window.addEventListener('load', function() {
+      console.log('WayWalker v2.0 carregado!');
+      
+      // Carregar idioma salvo
+      const savedLang = localStorage.getItem('waywalker_language') || 'pt';
+      currentLanguage = savedLang;
+      document.getElementById('input-language').value = savedLang;
+      
+      // Inicializar interface
+      updateLanguage(savedLang);
+      populateProfiles();
+      updateSpaceTypes();
+      setupEventListeners();
+    });
+  </script>
+</body>
+</html>
